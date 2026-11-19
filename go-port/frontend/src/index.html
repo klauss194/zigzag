@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zigzag</title>
+
+  <style>    html, body { block-size: 100%; margin: 0; overflow: hidden; background: var(--app-bg, #0d0f12); color: var(--app-text, #e9ecef); }
+    html { box-sizing: border-box; }
+    #frame { position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;
+             border: 1px solid #7d8590; }
+    :root[data-platform="mobile"] #frame { display: none; }
+    body { display: flex; flex-direction: column; }
+    :root:not([data-platform="mobile"]) body {
+      background:
+        linear-gradient(to bottom, transparent, var(--app-chrome) var(--chrome-glow-depth)),
+        linear-gradient(to right, transparent, var(--app-chrome-glow) var(--chrome-glow-at),
+                        transparent calc(var(--chrome-glow-at) + var(--chrome-glow-reach))),
+        var(--app-chrome);
+    }
+
+</style>
+</head>
+<body>
+
+  <div id="frame"></div>
+</body>
+</html>
+

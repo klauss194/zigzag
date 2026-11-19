@@ -1,0 +1,127 @@
+From cb9ebe2906f938b578d8db5b2423b364e7573344 Mon Sep 17 00:00:00 2001
+From: Zigzag maintainers <maintainers@example.com>
+Date: Fri, 26 Jun 2026 00:49:06 -0300
+Subject: [PATCH] feat(sync): allow extending room-list required_state
+
+Add SyncServiceBuilder::with_room_list_required_state + extra_required_state
+param on RoomListService::new_with, chained onto DEFAULT_REQUIRED_STATE. Lets
+callers have custom state events delivered on the sliding-sync stream and kept
+in the local store (read back via Room::get_state_events, no extra HTTP).
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+---
+ .../src/room_list_service/mod.rs              |  9 +++++++-
+ crates/matrix-sdk-ui/src/sync_service.rs      | 21 +++++++++++++++++++
+ 2 files changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/crates/matrix-sdk-ui/src/room_list_service/mod.rs b/crates/matrix-sdk-ui/src/room_list_service/mod.rs
+index ed882e3c2..0808c77c9 100644
+--- a/crates/matrix-sdk-ui/src/room_list_service/mod.rs
++++ b/crates/matrix-sdk-ui/src/room_list_service/mod.rs
+@@ -141,7 +141,8 @@ impl RoomListService {
+     /// to create one in this case using
+     /// [`EncryptionSyncService`][crate::encryption_sync_service::EncryptionSyncService].
+     pub async fn new(client: Client) -> Result<Self, Error> {
+-        Self::new_with(client, true, DEFAULT_CONNECTION_ID, DEFAULT_LIST_TIMELINE_LIMIT).await
++        Self::new_with(client, true, DEFAULT_CONNECTION_ID, DEFAULT_LIST_TIMELINE_LIMIT, Vec::new())
++            .await
+     }
+ 
+     /// Like [`RoomListService::new`] but with additional configuration options.
+@@ -150,6 +151,10 @@ impl RoomListService {
+     ///   cross-process position sharing.
+     /// - `connection_id`: the Sliding Sync connection ID
+     /// - `timeline_limit`: the timeline limit
++    /// - `extra_required_state`: additional `(event_type, state_key)` entries
++    ///   appended to the list's `required_state`, so callers can have custom
++    ///   state events delivered on the sliding-sync stream (and kept in the
++    ///   local store) without an extra HTTP fetch.
+     ///
+     /// [`SlidingSyncBuilder::share_pos`]: matrix_sdk::sliding_sync::SlidingSyncBuilder::share_pos
+     pub async fn new_with(
+@@ -157,6 +162,7 @@ impl RoomListService {
+         share_pos: bool,
+         connection_id: &str,
+         timeline_limit: u32,
++        extra_required_state: Vec<(StateEventType, String)>,
+     ) -> Result<Self, Error> {
+         let mut builder = client
+             .sliding_sync(connection_id)
+@@ -222,6 +228,7 @@ impl RoomListService {
+                         DEFAULT_REQUIRED_STATE
+                             .iter()
+                             .map(|(state_event, value)| (state_event.clone(), (*value).to_owned()))
++                            .chain(extra_required_state)
+                             .collect(),
+                     )
+                     .filters(Some(assign!(http::request::ListFilters::default(), {
+diff --git a/crates/matrix-sdk-ui/src/sync_service.rs b/crates/matrix-sdk-ui/src/sync_service.rs
+index 971fb6db6..40faebb1a 100644
+--- a/crates/matrix-sdk-ui/src/sync_service.rs
++++ b/crates/matrix-sdk-ui/src/sync_service.rs
+@@ -38,6 +38,7 @@ use matrix_sdk::{
+     executor::{JoinHandle, spawn},
+     sleep::sleep,
+ };
++use ruma::events::StateEventType;
+ use thiserror::Error;
+ use tokio::sync::{
+     Mutex as AsyncMutex, OwnedMutexGuard,
+@@ -785,6 +786,11 @@ pub struct SyncServiceBuilder {
+     /// [`room_list_service::DEFAULT_LIST_TIMELINE_LIMIT`].
+     room_list_timeline_limit: u32,
+ 
++    /// Extra `(event_type, state_key)` entries appended to the room list's
++    /// `required_state`, so custom state events ride the sliding-sync stream
++    /// and are kept in the local store. Defaults to empty.
++    room_list_required_state: Vec<(StateEventType, String)>,
++
+     /// The parent tracing span to use for the tasks within this service.
+     ///
+     /// Normally this will be [`Span::none`], but it may be useful to assign a
+@@ -801,6 +807,7 @@ impl SyncServiceBuilder {
+             with_share_pos: true,
+             room_list_conn_id: DEFAULT_CONNECTION_ID.to_owned(),
+             room_list_timeline_limit: DEFAULT_LIST_TIMELINE_LIMIT,
++            room_list_required_state: Vec::new(),
+             parent_span: Span::none(),
+         }
+     }
+@@ -834,6 +841,18 @@ impl SyncServiceBuilder {
+         self
+     }
+ 
++    /// Append extra `(event_type, state_key)` entries to the room list's
++    /// `required_state`, so the given custom state events are delivered on the
++    /// sliding-sync stream and kept in the local store (read back with
++    /// `Room::get_state_event(s)` without an extra HTTP fetch).
++    pub fn with_room_list_required_state(
++        mut self,
++        required_state: Vec<(StateEventType, String)>,
++    ) -> Self {
++        self.room_list_required_state = required_state;
++        self
++    }
++
+     /// Set the parent tracing span to be used for the tasks within this
+     /// service.
+     pub fn with_parent_span(mut self, parent_span: Span) -> Self {
+@@ -853,6 +872,7 @@ impl SyncServiceBuilder {
+             with_share_pos,
+             room_list_conn_id,
+             room_list_timeline_limit,
++            room_list_required_state,
+             parent_span,
+         } = self;
+ 
+@@ -863,6 +883,7 @@ impl SyncServiceBuilder {
+             with_share_pos,
+             &room_list_conn_id,
+             room_list_timeline_limit,
++            room_list_required_state,
+         )
+         .await?;
+ 
+-- 
+2.43.0
+

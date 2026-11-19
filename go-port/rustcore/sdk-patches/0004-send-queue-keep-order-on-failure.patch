@@ -1,0 +1,521 @@
+From: zigzag go-port/rustcore
+Subject: [PATCH 4] fix(send_queue): keep a room's sends in order when one fails (backport of #6843)
+
+Upstream matrix-org/matrix-rust-sdk#6843, "send queue: preserve ordering when a
+request fails to send" (merged 2026-08-27 as a61d2383e, released in matrix-sdk
+0.19.0), applied to our base 96ffd1a0b as it is. Only the line offsets differ,
+plus one hunk whose context lacks a field (FinishUpload's extra_content) that
+upstream added after our base.
+
+- A request that failed for good (wedged) now blocks the requests queued after
+  it in the same room until it is unwedged or aborted. Before, it was skipped,
+  so later messages went out ahead of it.
+- A failed media upload's error now shows on the media event's local echo.
+- HTTP 520 is transient again: retried, and kept in the queue instead of wedged.
+- Failing to load the next request from the store backs off 250 ms instead of
+  retrying in a tight loop.
+
+Upstream's changelog note (changelog.d/6843.changed.md) is left out. Drop this
+patch when the base moves to matrix-sdk >= 0.19.0, which contains it.
+---
+diff --git a/crates/matrix-sdk/src/error.rs b/crates/matrix-sdk/src/error.rs
+index f2b2269cb..ea2f0188a 100644
+--- a/crates/matrix-sdk/src/error.rs
++++ b/crates/matrix-sdk/src/error.rs
+@@ -227,14 +227,15 @@ impl RetryKind {
+     /// if we received an error from a reverse proxy while the Matrix
+     /// homeserver is down.
+     fn from_status_code(status_code: StatusCode) -> Self {
+-        if status_code.as_u16() == 520 {
+-            // Cloudflare or some other proxy server sent this, meaning the actual
+-            // homeserver sent some unknown error back
+-            RetryKind::Permanent
+-        } else if status_code == StatusCode::TOO_MANY_REQUESTS || status_code.is_server_error() {
+-            // If the status code is 429, this is requesting a retry in HTTP, without the
+-            // custom `errcode`. Treat that as a retriable request with no specified
+-            // retry_after delay.
++        // If the status code is 429, this is requesting a retry in HTTP, without the
++        // custom `errcode`. Treat that as a retriable request with no specified
++        // retry_after delay.
++        //
++        // All 5xx errors are considered transient, including non-standard ones like
++        // 520 ("web server returned an unknown error", from Cloudflare or another
++        // reverse proxy): they reflect the state of the server at the time of the
++        // request, and the request may well succeed when retried later.
++        if status_code == StatusCode::TOO_MANY_REQUESTS || status_code.is_server_error() {
+             RetryKind::Transient { retry_after: None }
+         } else {
+             RetryKind::Permanent
+diff --git a/crates/matrix-sdk/src/send_queue/mod.rs b/crates/matrix-sdk/src/send_queue/mod.rs
+index 32217e447..73fefae9a 100644
+--- a/crates/matrix-sdk/src/send_queue/mod.rs
++++ b/crates/matrix-sdk/src/send_queue/mod.rs
+@@ -27,6 +27,12 @@
+ //! a notification that can be listened to with the global send queue (see
+ //! paragraph below) or using [`RoomSendQueue::subscribe()`].
+ //!
++//! Requests are sent in the order they were queued. A request that failed with
++//! an unrecoverable error is marked as "wedged", and blocks all the requests
++//! queued after it (in the same room) from being sent, so events are never sent
++//! out of order; the queue resumes when the wedged request is retried (with
++//! [`SendHandle::unwedge`]) or removed (with [`SendHandle::abort`]).
++//!
+ //! It is possible to control whether a single room is enabled using
+ //! [`RoomSendQueue::set_enabled()`].
+ //!
+@@ -136,6 +142,7 @@ use std::{
+         Arc, RwLock,
+         atomic::{AtomicBool, Ordering},
+     },
++    time::Duration,
+ };
+ 
+ use eyeball::SharedObservable;
+@@ -188,6 +195,10 @@ mod upload;
+ 
+ pub use progress::AbstractProgress;
+ 
++/// How long to wait before retrying, when loading the next request to send
++/// failed against the state store.
++const STORE_ERROR_BACKOFF: Duration = Duration::from_millis(250);
++
+ /// A client-wide send queue, for all the rooms known by a client.
+ pub struct SendQueue {
+     client: Client,
+@@ -699,7 +710,7 @@ impl RoomSendQueue {
+                 Ok(Some(request)) => request,
+ 
+                 Ok(None) => {
+-                    trace!("queue is empty, sleeping");
++                    trace!("queue is empty or blocked on a wedged request, sleeping");
+                     // Wait for an explicit wakeup.
+                     notifier.notified().await;
+                     continue;
+@@ -707,6 +718,8 @@ impl RoomSendQueue {
+ 
+                 Err(err) => {
+                     warn!("error when loading next request to send: {err}");
++                    // Don't hammer a failing store; back off a bit before retrying.
++                    matrix_sdk_common::sleep::sleep(STORE_ERROR_BACKOFF).await;
+                     continue;
+                 }
+             };
+@@ -1026,7 +1039,9 @@ impl RoomSendQueue {
+                     } else {
+                         warn!(txn_id = %txn_id, error = ?err, "Unrecoverable error when sending request: {err}");
+ 
+-                        // Mark the request as wedged, so it's not picked at any future point.
++                        // Mark the request as wedged, so it's not picked at any future point;
++                        // it will also block subsequent requests in the same room from being
++                        // sent, until it's unwedged or removed, so as to preserve ordering.
+                         if let Err(storage_error) =
+                             queue.mark_as_wedged(&txn_id, QueueWedgeError::from(&err)).await
+                         {
+@@ -1465,7 +1480,12 @@ impl QueueStorage {
+         let queued_requests =
+             guard.client()?.state_store().load_send_queue_requests(&self.room_id).await?;
+ 
+-        if let Some(request) = queued_requests.iter().find(|queued| !queued.is_wedged()) {
++        // Only ever consider the head of the queue: requests must be sent in the
++        // order they were queued, so a wedged request (which failed to be sent with an
++        // unrecoverable error) blocks all the requests queued after it. Otherwise,
++        // messages would be sent out of order, until the wedged request is either
++        // manually unwedged or removed (both of which will wake up the sending task).
++        if let Some(request) = queued_requests.first().filter(|queued| !queued.is_wedged()) {
+             let (cancel_upload_tx, cancel_upload_rx) =
+                 if matches!(request.kind, QueuedRequestKind::MediaUpload { .. }) {
+                     let (tx, rx) = oneshot::channel();
+@@ -1988,48 +2008,61 @@ impl QueueStorage {
+         let client = guard.client()?;
+         let store = client.state_store();
+ 
+-        let local_requests =
+-            store.load_send_queue_requests(&self.room_id).await?.into_iter().filter_map(|queued| {
+-                Some(LocalEcho {
+-                    transaction_id: queued.transaction_id.clone(),
+-                    content: match queued.kind {
+-                        QueuedRequestKind::Event { content } => LocalEchoContent::Event {
+-                            serialized_event: content,
+-                            send_handle: SendHandle {
++        let queued_requests = store.load_send_queue_requests(&self.room_id).await?;
++
++        // Media upload requests aren't returned as echoes themselves (the media event,
++        // represented as a dependent request, is), so carry their send errors over to
++        // the dependent request's echo: a wedged upload wedges the media event.
++        let mut media_upload_errors: HashMap<OwnedTransactionId, QueueWedgeError> = queued_requests
++            .iter()
++            .filter_map(|queued| match queued.kind {
++                QueuedRequestKind::MediaUpload { .. } => {
++                    queued.error.clone().map(|error| (queued.transaction_id.clone(), error))
++                }
++                _ => None,
++            })
++            .collect();
++
++        let local_requests = queued_requests.into_iter().filter_map(|queued| {
++            Some(LocalEcho {
++                transaction_id: queued.transaction_id.clone(),
++                content: match queued.kind {
++                    QueuedRequestKind::Event { content } => LocalEchoContent::Event {
++                        serialized_event: content,
++                        send_handle: SendHandle {
++                            room: room.clone(),
++                            transaction_id: queued.transaction_id,
++                            media_handles: vec![],
++                            created_at: queued.created_at,
++                        },
++                        send_error: queued.error,
++                    },
++
++                    QueuedRequestKind::MediaUpload { .. } => {
++                        // Don't return uploaded medias as their own things; the accompanying
++                        // event represented as a dependent request should be sufficient.
++                        return None;
++                    }
++
++                    QueuedRequestKind::Redaction { redacts, reason } => {
++                        LocalEchoContent::Redaction {
++                            redacts,
++                            reason,
++                            send_handle: SendRedactionHandle {
+                                 room: room.clone(),
+                                 transaction_id: queued.transaction_id,
+-                                media_handles: vec![],
+-                                created_at: queued.created_at,
+                             },
+                             send_error: queued.error,
+-                        },
+-
+-                        QueuedRequestKind::MediaUpload { .. } => {
+-                            // Don't return uploaded medias as their own things; the accompanying
+-                            // event represented as a dependent request should be sufficient.
+-                            return None;
+                         }
++                    }
++                },
++            })
++        });
+ 
+-                        QueuedRequestKind::Redaction { redacts, reason } => {
+-                            LocalEchoContent::Redaction {
+-                                redacts,
+-                                reason,
+-                                send_handle: SendRedactionHandle {
+-                                    room: room.clone(),
+-                                    transaction_id: queued.transaction_id,
+-                                },
+-                                send_error: queued.error,
+-                            }
+-                        }
+-                    },
+-                })
+-            });
++        let dependent_requests = store.load_dependent_queued_requests(&self.room_id).await?;
+ 
+-        let reactions_and_medias = store
+-            .load_dependent_queued_requests(&self.room_id)
+-            .await?
+-            .into_iter()
+-            .filter_map(|dep| match dep.kind {
++        let reactions_and_medias =
++            dependent_requests.into_iter().filter_map(|dep| match dep.kind {
+                 DependentQueuedRequestKind::EditEvent { .. }
+                 | DependentQueuedRequestKind::RedactEvent => {
+                     // TODO: reflect local edits/redacts too?
+@@ -2058,6 +2091,15 @@ impl QueueStorage {
+                     file_upload,
+                     thumbnail_info,
+                 } => {
++                    let upload_thumbnail_txn = thumbnail_info.map(|info| info.txn);
++
++                    // If one of the uploads wedged, the media event is wedged too.
++                    let send_error = media_upload_errors.remove(&file_upload).or_else(|| {
++                        upload_thumbnail_txn
++                            .as_ref()
++                            .and_then(|txn| media_upload_errors.remove(&**txn))
++                    });
++
+                     // Materialize as an event local echo.
+                     Some(LocalEcho {
+                         transaction_id: dep.own_transaction_id.clone().into(),
+@@ -2068,12 +2110,12 @@ impl QueueStorage {
+                                 room: room.clone(),
+                                 transaction_id: dep.own_transaction_id.into(),
+                                 media_handles: vec![MediaHandles {
+-                                    upload_thumbnail_txn: thumbnail_info.map(|info| info.txn),
++                                    upload_thumbnail_txn,
+                                     upload_file_txn: file_upload,
+                                 }],
+                                 created_at: dep.created_at,
+                             },
+-                            send_error: None,
++                            send_error,
+                         },
+                     })
+                 }
+@@ -2087,6 +2129,7 @@ impl QueueStorage {
+                         dep.created_at,
+                         local_echo,
+                         item_infos,
++                        &mut media_upload_errors,
+                     )
+                 }
+             });
+@@ -2103,7 +2146,15 @@ impl QueueStorage {
+         created_at: MilliSecondsSinceUnixEpoch,
+         local_echo: Box<RoomMessageEventContent>,
+         item_infos: Vec<FinishGalleryItemInfo>,
++        media_upload_errors: &mut HashMap<OwnedTransactionId, QueueWedgeError>,
+     ) -> Option<LocalEcho> {
++        // If any of the uploads wedged, the gallery event is wedged too.
++        let send_error = item_infos.iter().find_map(|i| {
++            media_upload_errors.remove(&i.file_upload).or_else(|| {
++                i.thumbnail_info.as_ref().and_then(|info| media_upload_errors.remove(&*info.txn))
++            })
++        });
++
+         Some(LocalEcho {
+             transaction_id: transaction_id.clone().into(),
+             content: LocalEchoContent::Event {
+@@ -2120,7 +2171,7 @@ impl QueueStorage {
+                         .collect(),
+                     created_at,
+                 },
+-                send_error: None,
++                send_error,
+             },
+         })
+     }
+@@ -2742,6 +2793,9 @@ impl SendHandle {
+ 
+         for handles in &self.media_handles {
+             if queue.abort_upload(&self.transaction_id, handles).await? {
++                // Wake up the queue, in case it was blocked on this request being wedged.
++                self.room.inner.notifier.notify_one();
++
+                 // Propagate a cancelled update.
+                 self.room.send_update(RoomSendQueueUpdate::CancelledLocalEvent {
+                     transaction_id: self.transaction_id.clone(),
+@@ -2758,6 +2812,9 @@ impl SendHandle {
+         if queue.cancel_event(&self.transaction_id).await? {
+             trace!("successful abort");
+ 
++            // Wake up the queue, in case it was blocked on this request being wedged.
++            self.room.inner.notifier.notify_one();
++
+             // Propagate a cancelled update too.
+             self.room.send_update(RoomSendQueueUpdate::CancelledLocalEvent {
+                 transaction_id: self.transaction_id.clone(),
+@@ -3019,6 +3076,9 @@ impl SendRedactionHandle {
+         if queue.cancel_event(&self.transaction_id).await? {
+             trace!("successful redaction abort");
+ 
++            // Wake up the queue, in case it was blocked on this request being wedged.
++            self.room.inner.notifier.notify_one();
++
+             // Propagate a cancelled update too.
+             self.room.send_update(RoomSendQueueUpdate::CancelledLocalEvent {
+                 transaction_id: self.transaction_id.clone(),
+diff --git a/crates/matrix-sdk/tests/integration/send_queue.rs b/crates/matrix-sdk/tests/integration/send_queue.rs
+index b868d1859..862a46adb 100644
+--- a/crates/matrix-sdk/tests/integration/send_queue.rs
++++ b/crates/matrix-sdk/tests/integration/send_queue.rs
+@@ -1538,13 +1538,14 @@ async fn test_unrecoverable_errors() {
+ 
+     mock.mock_room_state_encryption().plain().mount().await;
+ 
+-    // Respond to the first /send with an unrecoverable error.
++    // Respond to the first /send with an unrecoverable error. The success mock for
++    // the second message is only mounted after the wedged message gets cancelled,
++    // so a request sneaking past the wedge fails loudly regardless of timing.
+     mock.mock_room_send().error_too_large().mock_once().mount().await;
+-    // Respond to the second /send with an OK response.
+-    mock.mock_room_send().ok(event_id!("$42")).mock_once().mount().await;
+ 
+     // Queue two messages.
+-    q.send(RoomMessageEventContent::text_plain("i'm too big for ya").into()).await.unwrap();
++    let handle1 =
++        q.send(RoomMessageEventContent::text_plain("i'm too big for ya").into()).await.unwrap();
+     q.send(RoomMessageEventContent::text_plain("aloha").into()).await.unwrap();
+ 
+     // First message is seen as a local echo.
+@@ -1568,6 +1569,15 @@ async fn test_unrecoverable_errors() {
+     assert!(!room.send_queue().is_enabled());
+     room.send_queue().set_enabled(true);
+ 
++    // The second message is NOT sent: the wedged first message blocks the queue, so
++    // messages aren't sent out of order. Its success mock is only mounted below, so
++    // a request sneaking past the wedge fails loudly.
++    //
++    // Cancelling the wedged message unblocks the queue.
++    mock.mock_room_send().ok(event_id!("$42")).mock_once().mount().await;
++    assert!(handle1.abort().await.unwrap());
++    assert_update!((global_watch, watch) => cancelled { txn = txn1 });
++
+     // The second message will be properly sent.
+     assert_update!((global_watch, watch) => sent { txn=txn2, event_id=event_id!("$42") });
+ 
+@@ -2854,12 +2864,13 @@ async fn test_media_upload_retry_with_520_http_status_code() {
+ 
+     mock.mock_authenticated_media_config().ok_default().mount().await;
+ 
+-    // Fail with a 520 http status code
++    // Fail with a 520 http status code, for the first three (in-request retry)
++    // attempts.
+     mock.mock_upload()
+         .expect_mime_type("image/jpeg")
+         .respond_with(ResponseTemplate::new(520).set_body_json(json!({})))
+-        .up_to_n_times(1)
+-        .expect(1)
++        .up_to_n_times(3)
++        .expect(3)
+         .mount()
+         .await;
+ 
+@@ -2873,11 +2884,40 @@ async fn test_media_upload_retry_with_520_http_status_code() {
+     assert_let!(MessageType::Image(img_content) = content.msgtype);
+     assert_eq!(img_content.body, filename);
+ 
+-    // Let the upload stumble and the queue disable itself.
+-    let error = assert_update!((global_watch, watch) => error { recoverable=false, txn=event_txn });
++    // A 520 is a transient (recoverable) server error: let the upload stumble and
++    // the queue disable itself, keeping the request in the queue.
++    let error = assert_update!((global_watch, watch) => error { recoverable=true, txn=event_txn });
+     let error = error.as_client_api_error().unwrap();
+     assert_eq!(error.status_code, 520);
+     assert!(q.is_enabled().not());
++
++    // Mount the mock for the upload and sending the event.
++    mock.mock_upload()
++        .expect_mime_type("image/jpeg")
++        .ok(mxc_uri!("mxc://sdk.rs/media"))
++        .mock_once()
++        .mount()
++        .await;
++    mock.mock_room_send().ok(event_id!("$1")).mock_once().mount().await;
++
++    // Restarting the send queue retries the upload, which succeeds this time.
++    q.set_enabled(true);
++
++    assert_update!((global_watch, watch) => uploaded {
++        related_to = event_txn,
++        mxc = mxc_uri!("mxc://sdk.rs/media")
++    });
++
++    assert_update!((global_watch, watch) => edit local echo { txn = event_txn });
++
++    // The event is sent, at some point.
++    assert_update!((global_watch, watch) => sent {
++        txn = event_txn,
++        event_id = event_id!("$1")
++    });
++
++    // That's all, folks!
++    assert!(watch.is_empty());
+ }
+ 
+ #[async_test]
+@@ -2920,6 +2960,13 @@ async fn test_unwedging_media_upload() {
+     assert_eq!(error.status_code, 413);
+     assert!(!q.is_enabled());
+ 
++    // The wedged upload is reflected on the media event's local echo: a client
++    // restarting here must see the media as failed, not as still being sent.
++    let (local_echoes, _) = q.subscribe().await.unwrap();
++    assert_eq!(local_echoes.len(), 1);
++    assert_let!(LocalEchoContent::Event { send_error, .. } = &local_echoes[0].content);
++    assert!(send_error.is_some());
++
+     // Mount the mock for the upload and sending the event.
+     mock.mock_upload().ok(mxc_uri!("mxc://sdk.rs/media")).mock_once().mount().await;
+     mock.mock_room_send().ok(event_id!("$1")).mock_once().mount().await;
+@@ -2948,6 +2995,59 @@ async fn test_unwedging_media_upload() {
+     assert!(watch.is_empty());
+ }
+ 
++#[cfg(feature = "unstable-msc4274")]
++#[async_test]
++async fn test_wedged_gallery_upload_error_is_reflected_on_local_echo() {
++    let mock = MatrixMockServer::new().await;
++
++    // Mark the room as joined.
++    let room_id = room_id!("!a:b.c");
++    let client = mock.client_builder().build().await;
++    let room = mock.sync_joined_room(&client, room_id).await;
++
++    let q = room.send_queue();
++    let (local_echoes, mut watch) = q.subscribe().await.unwrap();
++    assert!(local_echoes.is_empty());
++
++    let mut global_watch = client.send_queue().subscribe();
++
++    // Prepare endpoints.
++    mock.mock_authenticated_media_config().ok_default().mount().await;
++    mock.mock_room_state_encryption().plain().mount().await;
++
++    // The upload fails with an error indicating the media's too large, wedging it.
++    mock.mock_upload().error_too_large().mock_once().mount().await;
++
++    // Send a single-item gallery, without a thumbnail.
++    let gallery = GalleryConfig::new().add_item(GalleryItemInfo {
++        attachment_info: AttachmentInfo::Image(BaseImageInfo::default()),
++        content_type: mime::IMAGE_JPEG,
++        filename: "surprise.jpeg.exe".into(),
++        data: b"hello world".to_vec(),
++        thumbnail: None,
++        caption: None,
++    });
++
++    assert!(watch.is_empty());
++    q.send_gallery(gallery).await.expect("queuing the gallery works");
++
++    let (event_txn, _send_handle, _content) =
++        assert_update!((global_watch, watch) => local echo event);
++
++    // Although the actual error happens on the file upload transaction id, it must
++    // be reported with the *event* transaction id.
++    let error = assert_update!((global_watch, watch) => error { recoverable=false, txn=event_txn });
++    assert_eq!(error.as_client_api_error().unwrap().status_code, 413);
++    assert!(!q.is_enabled());
++
++    // The wedged upload is reflected on the gallery event's local echo: a client
++    // restarting here must see the gallery as failed, not as still being sent.
++    let (local_echoes, _) = q.subscribe().await.unwrap();
++    assert_eq!(local_echoes.len(), 1);
++    assert_let!(LocalEchoContent::Event { send_error, .. } = &local_echoes[0].content);
++    assert!(send_error.is_some());
++}
++
+ /// Aborts an ongoing media upload and checks post-conditions:
+ /// - we could abort
+ /// - we get the notification about the aborted upload
+@@ -3016,10 +3116,14 @@ async fn test_media_event_is_sent_in_order() {
+     {
+         // 1. Send a text message that will get wedged.
+         mock.mock_room_send().error_too_large().mock_once().mount().await;
+-        q.send(RoomMessageEventContent::text_plain("error").into()).await.unwrap();
++        let handle = q.send(RoomMessageEventContent::text_plain("error").into()).await.unwrap();
+         let (text_txn, _send_handle) =
+             assert_update!((global_watch, watch) => local echo { body = "error" });
+         assert_update!((global_watch, watch) => error { recoverable = false, txn = text_txn });
++
++        // The wedged message would block the queue, so cancel it.
++        assert!(handle.abort().await.unwrap());
++        assert_update!((global_watch, watch) => cancelled { txn = text_txn });
+     }
+ 
+     // Re-enable the send queue after the permanent error.
+@@ -3061,11 +3165,9 @@ async fn test_media_event_is_sent_in_order() {
+     // That's all, folks!
+     assert!(watch.is_empty());
+ 
+-    // When reopening the send queue, we still see the wedged event.
++    // When reopening the send queue, everything has been sent or cancelled.
+     let (local_echoes, _watch) = q.subscribe().await.unwrap();
+-    assert_eq!(local_echoes.len(), 1);
+-    assert_let!(LocalEchoContent::Event { send_error, .. } = &local_echoes[0].content);
+-    assert!(send_error.is_some());
++    assert!(local_echoes.is_empty());
+ }
+ 
+ #[async_test]

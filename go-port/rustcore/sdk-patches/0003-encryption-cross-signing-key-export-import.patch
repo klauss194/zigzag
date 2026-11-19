@@ -1,0 +1,71 @@
+From: zigzag go-port/rustcore
+Subject: [PATCH 3] feat(encryption): export/import the private cross-signing keys from the client
+
+Encryption::export_cross_signing_keys and Encryption::import_cross_signing_keys:
+OlmMachine's methods of the same names (unchanged) made reachable from matrix-sdk's
+client. The import is the CHECKED one (each key must match the account's public
+identity in the store), not import_secrets_bundle's unchecked one. Also re-exports
+CrossSigningKeyExport next to CrossSigningStatus.
+
+Used by go-port's device trust to keep the account's seeds in the OS keychain
+across logouts (see SDK-PATCHES.txt).
+---
+diff --git a/crates/matrix-sdk/src/encryption/mod.rs b/crates/matrix-sdk/src/encryption/mod.rs
+index e91605ca4..48095d442 100644
+--- a/crates/matrix-sdk/src/encryption/mod.rs
++++ b/crates/matrix-sdk/src/encryption/mod.rs
+@@ -114,9 +114,9 @@ pub mod verification;
+ 
+ use matrix_sdk_base::crypto::OlmMachineBuilder;
+ pub use matrix_sdk_base::crypto::{
+-    CrossSigningStatus, CryptoStoreError, DecryptorError, EventError, KeyExportError, LocalTrust,
+-    MediaEncryptionInfo, MegolmError, OlmError, RoomKeyImportResult, SessionCreationError,
+-    SignatureError, VERSION,
++    CrossSigningKeyExport, CrossSigningStatus, CryptoStoreError, DecryptorError, EventError,
++    KeyExportError, LocalTrust, MediaEncryptionInfo, MegolmError, OlmError, RoomKeyImportResult,
++    SessionCreationError, SignatureError, VERSION,
+     olm::{
+         SessionCreationError as MegolmSessionCreationError,
+         SessionExportError as OlmSessionExportError,
+@@ -982,6 +982,41 @@ impl Encryption {
+         Some(machine.cross_signing_status().await)
+     }
+ 
++    /// Export this device's private cross-signing keys: the Ed25519 seeds as
++    /// unpadded base64. `None` when the device holds none of them.
++    ///
++    /// zigzag patch 0003 (go-port/rustcore/SDK-PATCHES.txt): the app keeps the
++    /// account's seeds in the OS keychain across logouts. This is
++    /// [`OlmMachine::export_cross_signing_keys`] made reachable from the
++    /// client, unchanged.
++    ///
++    /// **Warning**: whoever holds these keys can sign devices into the
++    /// account's trust. Keep them only where the user's secrets are kept.
++    pub async fn export_cross_signing_keys(&self) -> Result<Option<CrossSigningKeyExport>> {
++        let olm = self.client.olm_machine().await;
++        let olm = olm.as_ref().ok_or(Error::NoOlmMachine)?;
++        Ok(olm.export_cross_signing_keys().await?)
++    }
++
++    /// Import private cross-signing keys, CHECKED: each key is accepted only
++    /// if its public half is the one the account's identity in the store
++    /// carries (a `/keys/query` for our own user must have run, e.g.
++    /// [`Encryption::request_user_identity`]), and the identity is marked
++    /// verified when all of them match.
++    ///
++    /// zigzag patch 0003: [`OlmMachine::import_cross_signing_keys`] made
++    /// reachable from the client, unchanged. Unlike
++    /// [`Encryption::import_secrets_bundle`] it never creates an identity
++    /// from the keys alone, so superseded keys are refused instead of used.
++    pub async fn import_cross_signing_keys(
++        &self,
++        export: CrossSigningKeyExport,
++    ) -> Result<CrossSigningStatus, BundleImportError> {
++        let olm = self.client.olm_machine().await;
++        let olm = olm.as_ref().ok_or(BundleImportError::DeviceKeys(Error::NoOlmMachine))?;
++        Ok(olm.import_cross_signing_keys(export).await?)
++    }
++
+     /// Does the user have other devices that the current device can verify
+     /// against?
+     ///

@@ -1,0 +1,280 @@
+From 3c64178046306fd0ddf56375d1a64fcfa5da72e3 Mon Sep 17 00:00:00 2001
+From: Zigzag maintainers <maintainers@example.com>
+Date: Mon, 5 Oct 2026 19:17:32 -0300
+Subject: [PATCH] feat(sliding-sync): hand every response body to an optional
+ observer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+zigzag patch 0002 (go-port/rustcore/SDK-PATCHES.txt in the zigzag repo).
+
+SlidingSyncBuilder::with_raw_response_observer installs a callback that
+receives every sliding sync response VERBATIM — the HTTP body bytes as the
+server sent them, plus the request's and the response's `pos` — after the
+SDK fully handled it and persisted the new position, still under the
+position lock (so in order, and only handled responses).
+
+The request is sent wrapped in KeepRawBody, whose IncomingResponse copies
+the body before ruma parses it: same endpoint, metadata and error type.
+SlidingSync::current_pos() exposes the restored position at startup.
+
+Why: an application that folds the server's JSON itself must see what the
+server said; ruma's v5 types model a subset (e.g. lists.*.ops is dropped).
+---
+ crates/matrix-sdk/src/sliding_sync/builder.rs | 12 +++
+ crates/matrix-sdk/src/sliding_sync/mod.rs     | 39 +++++++-
+ .../src/sliding_sync/raw_response.rs          | 98 +++++++++++++++++++
+ 3 files changed, 148 insertions(+), 1 deletion(-)
+ create mode 100644 crates/matrix-sdk/src/sliding_sync/raw_response.rs
+
+diff --git a/crates/matrix-sdk/src/sliding_sync/builder.rs b/crates/matrix-sdk/src/sliding_sync/builder.rs
+index 00f237605..6ce05f15e 100644
+--- a/crates/matrix-sdk/src/sliding_sync/builder.rs
++++ b/crates/matrix-sdk/src/sliding_sync/builder.rs
+@@ -33,6 +33,8 @@ pub struct SlidingSyncBuilder {
+     network_timeout: Duration,
+     #[cfg(feature = "e2e-encryption")]
+     share_pos: bool,
++    /// zigzag patch 0002.
++    raw_response_observer: Option<super::RawResponseObserver>,
+ }
+ 
+ impl SlidingSyncBuilder {
+@@ -55,6 +57,7 @@ impl SlidingSyncBuilder {
+                 network_timeout: Duration::from_secs(30),
+                 #[cfg(feature = "e2e-encryption")]
+                 share_pos: false,
++                raw_response_observer: None,
+             })
+         }
+     }
+@@ -224,6 +227,13 @@ impl SlidingSyncBuilder {
+         self
+     }
+ 
++    /// zigzag patch 0002: hand every response body, verbatim, to `observer`
++    /// once it has been handled. See [`super::RawResponseObserver`].
++    pub fn with_raw_response_observer(mut self, observer: super::RawResponseObserver) -> Self {
++        self.raw_response_observer = Some(observer);
++        self
++    }
++
+     /// Should the sliding sync instance share its sync position through
+     /// storage?
+     ///
+@@ -295,6 +305,8 @@ impl SlidingSyncBuilder {
+ 
+             poll_timeout: self.poll_timeout,
+             network_timeout: self.network_timeout,
++
++            raw_response_observer: self.raw_response_observer,
+         }))
+     }
+ }
+diff --git a/crates/matrix-sdk/src/sliding_sync/mod.rs b/crates/matrix-sdk/src/sliding_sync/mod.rs
+index 5f32b2e43..01a1fb4a1 100644
+--- a/crates/matrix-sdk/src/sliding_sync/mod.rs
++++ b/crates/matrix-sdk/src/sliding_sync/mod.rs
+@@ -20,6 +20,7 @@ mod cache;
+ mod client;
+ mod error;
+ mod list;
++mod raw_response; // zigzag patch 0002
+ 
+ use std::{
+     collections::{BTreeMap, btree_map::Entry},
+@@ -48,6 +49,9 @@ use tokio::{
+ use tracing::{Instrument, Span, debug, error, info, instrument, trace, warn};
+ 
+ pub use self::{builder::*, client::VersionBuilderError, error::*, list::*};
++// zigzag patch 0002
++pub use self::raw_response::{RawResponseObserver, RawSlidingSyncResponse};
++use self::raw_response::KeepRawBody;
+ use self::{cache::restore_sliding_sync_state, client::SlidingSyncResponseProcessor};
+ use crate::{Client, Result, config::RequestConfig};
+ 
+@@ -116,6 +120,10 @@ pub(super) struct SlidingSyncInner {
+     /// Internal channel used to pass messages between Sliding Sync and other
+     /// types.
+     internal_channel: Sender<SlidingSyncInternalMessage>,
++
++    /// zigzag patch 0002: receives every response body verbatim, once it has
++    /// been handled. See [`RawResponseObserver`].
++    raw_response_observer: Option<RawResponseObserver>,
+ }
+ 
+ impl SlidingSync {
+@@ -548,7 +556,9 @@ impl SlidingSync {
+ 
+         // Prepare the request.
+         let requested_required_states = RequestedRequiredStates::from(&request);
+-        let request = self.inner.client.send(request).with_request_config(request_config);
++        // zigzag patch 0002: the same request, but its response keeps the body.
++        let request =
++            self.inner.client.send(KeepRawBody(request)).with_request_config(request_config);
+ 
+         // Send the request and get a response with end-to-end encryption support.
+         //
+@@ -612,6 +622,10 @@ impl SlidingSync {
+ 
+         debug!("Received response");
+ 
++        // zigzag patch 0002: split the body off; keep it only if someone reads it.
++        let raw_response::WithRawBody { response, body } = response;
++        let raw_body = self.inner.raw_response_observer.is_some().then_some(body);
++
+         // At this point, the request has been sent, and a response has been received.
+         //
+         // We must ensure the handling of the response cannot be stopped/
+@@ -632,6 +646,9 @@ impl SlidingSync {
+             // ensure responses are handled one at a time. At this point we still own
+             // `position_guard`, so we're fine.
+ 
++            // zigzag patch 0002: the `pos` this request carried.
++            let request_pos = position_guard.pos.clone();
++
+             // Handle the response.
+             let updates = this
+                 .handle_response(response, &mut position_guard, requested_required_states)
+@@ -639,6 +656,17 @@ impl SlidingSync {
+ 
+             this.cache_to_storage(&position_guard).await?;
+ 
++            // zigzag patch 0002: hand the body over, still under the position
++            // lock, so observers see responses in order and only handled ones.
++            if let (Some(observer), Some(body)) = (&this.inner.raw_response_observer, raw_body) {
++                (observer.0)(RawSlidingSyncResponse {
++                    request_pos,
++                    response_pos: position_guard.pos.clone().unwrap_or_default(),
++                    body,
++                })
++                .await;
++            }
++
+             // Release the position guard lock.
+             // It means that other responses can be generated and then handled later.
+             drop(position_guard);
+@@ -773,6 +801,15 @@ impl SlidingSync {
+         Ok(self.inner.internal_channel_send(SlidingSyncInternalMessage::SyncLoopStop)?)
+     }
+ 
++    /// zigzag patch 0002: the connection's current `pos` (restored from the
++    /// store at build time when `share_pos` is on), or `None` before the first
++    /// response of a fresh connection. Waits for a round in flight to finish
++    /// (the position lock is held for the whole round trip): read it before
++    /// starting to sync, then follow the observer.
++    pub async fn current_pos(&self) -> Option<String> {
++        self.inner.position.lock().await.pos.clone()
++    }
++
+     /// Expire the current Sliding Sync session on the client-side.
+     ///
+     /// Expiring a Sliding Sync session means: resetting `pos`.
+diff --git a/crates/matrix-sdk/src/sliding_sync/raw_response.rs b/crates/matrix-sdk/src/sliding_sync/raw_response.rs
+new file mode 100644
+index 000000000..cd0ae6d73
+--- /dev/null
++++ b/crates/matrix-sdk/src/sliding_sync/raw_response.rs
+@@ -0,0 +1,98 @@
++// zigzag patch 0002 — see go-port/rustcore/SDK-PATCHES.txt in the zigzag repo.
++//
++// Hand every sliding sync response, VERBATIM (the HTTP body bytes as the
++// server sent them), to an optional observer — after the SDK has fully
++// processed it and persisted the new `pos`, before the next request is sent.
++//
++// Why bytes and not the parsed `http::Response`: ruma's v5 response models a
++// subset of what servers send (Synapse's `lists.*.ops`, for one, is dropped),
++// and an application that already folds the server's JSON itself must see
++// exactly what the server said.
++
++use std::{fmt, sync::Arc};
++
++use bytes::BufMut;
++use matrix_sdk_common::BoxFuture;
++use ruma::api::{
++    IncomingResponse, Metadata, OutgoingRequest,
++    auth_scheme::AuthScheme,
++    client::sync::sync_events::v5 as http,
++    error::{FromHttpResponseError, IntoHttpError},
++    path_builder::PathBuilder,
++};
++
++/// One sliding sync response as the server sent it.
++#[derive(Clone, Debug)]
++pub struct RawSlidingSyncResponse {
++    /// The `pos` the request carried; `None` means the request had no `pos`
++    /// (the response is a full window).
++    pub request_pos: Option<String>,
++
++    /// The `pos` the response carried, which is now this connection's
++    /// position.
++    pub response_pos: String,
++
++    /// The HTTP response body, byte for byte.
++    pub body: Vec<u8>,
++}
++
++/// An async callback receiving every [`RawSlidingSyncResponse`], in order.
++///
++/// Awaited on the task that handles the response, while the connection's
++/// position lock is still held: the next request is not sent before the
++/// returned future completes, so it can rely on the SDK's state reflecting
++/// exactly this response — and it must not take long.
++#[derive(Clone)]
++pub struct RawResponseObserver(
++    pub Arc<dyn Fn(RawSlidingSyncResponse) -> BoxFuture<'static, ()> + Send + Sync>,
++);
++
++impl fmt::Debug for RawResponseObserver {
++    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
++        f.write_str("RawResponseObserver")
++    }
++}
++
++/// The v5 request, unchanged, whose response also keeps the body bytes.
++#[derive(Clone, Debug)]
++pub(super) struct KeepRawBody(pub http::Request);
++
++impl Metadata for KeepRawBody {
++    const METHOD: ::http::Method = <http::Request as Metadata>::METHOD;
++    const RATE_LIMITED: bool = <http::Request as Metadata>::RATE_LIMITED;
++    type Authentication = <http::Request as Metadata>::Authentication;
++    type PathBuilder = <http::Request as Metadata>::PathBuilder;
++    const PATH_BUILDER: Self::PathBuilder = <http::Request as Metadata>::PATH_BUILDER;
++}
++
++impl OutgoingRequest for KeepRawBody {
++    type EndpointError = <http::Request as OutgoingRequest>::EndpointError;
++    type IncomingResponse = WithRawBody;
++
++    fn try_into_http_request<T: Default + BufMut + AsRef<[u8]>>(
++        self,
++        base_url: &str,
++        authentication_input: <Self::Authentication as AuthScheme>::Input<'_>,
++        path_builder_input: <Self::PathBuilder as PathBuilder>::Input<'_>,
++    ) -> Result<::http::Request<T>, IntoHttpError> {
++        self.0.try_into_http_request(base_url, authentication_input, path_builder_input)
++    }
++}
++
++/// The parsed v5 response plus the body it was parsed from.
++pub(super) struct WithRawBody {
++    pub response: http::Response,
++    pub body: Vec<u8>,
++}
++
++impl IncomingResponse for WithRawBody {
++    type EndpointError = <http::Request as OutgoingRequest>::EndpointError;
++
++    fn try_from_http_response<T: AsRef<[u8]>>(
++        response: ::http::Response<T>,
++    ) -> Result<Self, FromHttpResponseError<Self::EndpointError>> {
++        let body = response.body().as_ref().to_vec();
++        let response = http::Response::try_from_http_response(response)?;
++        Ok(Self { response, body })
++    }
++}
+-- 
+2.43.0
+

@@ -1,0 +1,113 @@
+version: '3'
+
+includes:
+  platform:
+    taskfile: ./build/{{OS}}/Taskfile.yml
+    optional: true
+    flatten: true
+  android:
+    taskfile: ./build/android/Taskfile.yml
+    optional: true
+
+vars:
+  APP_NAME: "zigzag-go"
+  BIN_DIR: "bin"
+  PACKAGE_MANAGER: '{{.PACKAGE_MANAGER | default "npm"}}'
+
+  EXTRA_TAGS: '{{.EXTRA_TAGS | default "strictevents"}}'
+
+  MODULE_TAGS:
+    sh: node ../scripts/modules.mjs go-tags
+  GO_TAGS: '{{.EXTRA_TAGS}}{{if .MODULE_TAGS}},{{.MODULE_TAGS}}{{end}}'
+
+  GOOS: '{{.GOOS | default OS}}'
+
+tasks:
+
+  install:frontend:
+    summary: Install the frontend toolchain (skipped when package.json is unchanged)
+    dir: frontend
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/.package-lock.json
+    cmds:
+      - "{{.PACKAGE_MANAGER}} install"
+
+  build:frontend:
+    summary: Build the frontend and the source pack
+    deps: [install:frontend, bindings]
+    dir: frontend
+    cmds:
+      - "{{.PACKAGE_MANAGER}} run build"
+    env:
+      ZIGZAG_EXCLUDE: '{{.ZIGZAG_EXCLUDE | default ""}}'
+
+  dev:frontend:
+    summary: Development build of the frontend — readable, with source maps
+    dir: frontend
+    cmds:
+      - "{{.PACKAGE_MANAGER}} run build:dev"
+
+  generate:syso:
+    summary: Embed the icon and manifest into the Windows executable
+    cmds:
+      - go tool wails3 generate icons -input build/darwin/appicon.png -windowsfilename build/windows/icon.ico
+      - go tool wails3 generate syso -arch {{.SYSO_ARCH}} -icon build/windows/icon.ico -manifest build/windows/wails.exe.manifest -out cmd/zigzag/rsrc_windows_{{.SYSO_ARCH}}.syso
+    vars:
+      SYSO_ARCH: '{{.GOARCH | default ARCH}}'
+
+  build:
+    summary: Build the application
+    deps: [build:frontend, build:rustcore]
+    cmds:
+      - '{{if eq .GOOS "windows"}}task generate:syso{{else}}echo "not a windows target — no icon resource needed"{{end}}'
+      - go build -tags "{{.GO_TAGS}}" -o {{.BIN_DIR}}/{{.APP_NAME}} ./cmd/zigzag
+
+  vet:
+    summary: Static checks
+    cmds:
+      - go vet -tags "{{.GO_TAGS}}" ./...
+      - cd aivault && go vet ./...
+
+  build:rustcore:
+    summary: Build the Rust Matrix core (go-port/rustcore) into rustcore/lib
+    sources:
+      - rustcore/Cargo.toml
+      - rustcore/Cargo.lock
+      - rustcore/.cargo/config.toml
+      - rustcore/src/**/*.rs
+      - rustcore/sdk-patches/*.patch
+    generates:
+      - rustcore/lib/*
+    cmds:
+      - rustcore/scripts/build.sh
+
+  bindings:rustcore:
+    summary: Regenerate internal/rustcore from the built library
+    deps: [build:rustcore]
+    cmds:
+      - rustcore/scripts/gen-bindings.sh
+
+  test:
+    summary: Run tests with the race detector
+    deps: [build:rustcore]
+    cmds:
+      - go test -race -tags "{{.GO_TAGS}}" ./...
+      - cd aivault && go test -race ./...
+
+  go:mod:tidy:
+    summary: Tidy go.mod/go.sum
+    cmds:
+      - go mod tidy
+
+  bindings:
+    summary: Regenerate typed frontend bindings from the bound Service methods
+    cmds:
+      - go tool wails3 generate bindings -f "-tags {{.GO_TAGS}}" -d frontend/bindings ./cmd/zigzag
+
+  dev:
+    summary: Run with hot reload
+    cmds:
+      - go tool wails3 dev

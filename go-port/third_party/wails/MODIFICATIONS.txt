@@ -1,0 +1,5 @@
+This copy of Wails is modified from the upstream sources; its licence is in LICENSE.
+Files changed:
+  pkg/application/linux_cgo.c
+  pkg/application/webview_window.go
+  pkg/application/zigzag_filedrop.go

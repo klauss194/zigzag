@@ -1,0 +1,5 @@
+{
+  "debug": {
+    "description": "Trace viewer window and its titlebar button (the trace ring itself is core)"
+  }
+}

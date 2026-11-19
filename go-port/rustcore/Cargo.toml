@@ -1,0 +1,45 @@
+[package]
+name = "zigzag-rustcore"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.93"
+publish = false
+
+[workspace]
+exclude = ["vendor"]
+
+[lib]
+name = "zigzag_rustcore"
+crate-type = ["cdylib", "staticlib", "lib"]
+
+[dependencies]
+matrix-sdk = { path = "vendor/matrix-rust-sdk/crates/matrix-sdk", default-features = false, features = [
+    "e2e-encryption",
+    "automatic-room-key-forwarding",
+    "bundled-sqlite",
+] }
+libsqlite3-sys = "0.35.0"
+uniffi = { git = "https://github.com/mozilla/uniffi-rs.git", rev = "e5f4821410bea19e71984ea5e06a7bc8b11ed9e5", version = "0.31.0", default-features = false, features = ["tokio"] }
+async-compat = { version = "0.2.5", default-features = false }
+tokio = { version = "1.48.0", features = ["rt-multi-thread", "sync", "time", "macros"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["raw_value"] }
+thiserror = "2.0.17"
+futures-util = { version = "0.3.31", default-features = false, features = ["std"] }
+mime = "0.3.17"
+tracing = { version = "0.1.41", default-features = false, features = ["std"] }
+tracing-subscriber = { version = "0.3.20", default-features = false, features = ["std", "fmt", "env-filter"] }
+url = "2.5"
+
+[target.'cfg(target_os = "android")'.dependencies]
+webpki-root-certs = "1"
+
+[patch.crates-io]
+async-compat = { git = "https://github.com/element-hq/async-compat", rev = "5a27c8b290f1f1dcfc0c4ec22c464e38528aa591" }
+const_panic = { git = "https://github.com/jplatte/const_panic", rev = "e0b317a9a7bde2d48a7d15b6a60d70e4a41d3b5f" }
+
+[profile.dist]
+inherits = "release"
+strip = "debuginfo"
+lto = true
+opt-level = "s"

@@ -1,0 +1,55 @@
+:root {
+  --space-4xs: 0.0625rem;
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs:  0.375rem;
+  --space-sm:  0.5rem;
+  --space-md:  0.75rem;
+  --space-lg:  1rem;
+  --space-xl:  1.5rem;
+  --space-2xl: 2rem;
+
+  --content-max: 1440px;
+
+  --topbar-height: 2.25rem;
+  --topbar-padding: var(--space-sm) var(--space-md);
+  --topbar-gap: var(--space-sm);
+  --topbar-btn-size: var(--control-height);
+  --topbar-icon-size: var(--control-icon-size);
+
+  --titlebar-icon-size: var(--control-icon-size);
+  --titlebar-btn-size: 1.75rem;
+  --titlebar-height: 2rem;
+
+  --footerbar-height: 1.25rem;
+  --footerbar-icon-size: 0.875rem;
+
+  --island-gap: 0.25rem;
+  --island-inset: calc((var(--titlebar-height) + var(--island-gap)) * 0.75);
+  --island-radius: var(--radius-md);
+
+  --chrome-glow-at: 22rem;
+  --chrome-glow-reach: 26rem;
+  --chrome-glow-depth: 12.5rem;
+
+  --control-height: 1.5rem;
+  --control-icon-size: 1rem;
+  --control-radius: 0.25rem;
+  --control-pad-x: 0.625rem;
+  --control-gap: var(--space-2xs);
+  --control-icon-stroke: 1.5;
+
+  --tap-min: 44px;
+
+  --target-min: 24px;
+
+  --pill-size: 2.75rem;
+
+  --radius-sm:    0.375rem;
+  --radius-md:    0.5rem;
+  --radius-lg:    0.75rem;
+  --radius-pill:  999px;
+  --radius-round: 50%;
+
+  --border-thin: var(--border-size-1);
+}

@@ -1,0 +1,31 @@
+:root {
+  --font-family-primary:   var(--font-system-ui);
+  --font-family-secondary: var(--font-monospace-code);
+
+  --ui-scale: 1;
+
+  --font-size-3xs:  0.62rem;
+  --font-size-2xs:  0.7rem;
+  --font-size-xs:   0.78rem;
+  --font-size-sm:   0.85rem;
+  --font-size-base: 0.9rem;
+  --font-size-md:   var(--font-size-1);
+  --font-size-lg:   var(--font-size-2);
+  --font-size-xl:   var(--font-size-3);
+  --font-size-2xl:  var(--font-size-4);
+  --font-size-3xl:  var(--font-size-7);
+
+  --leading-tight:  var(--font-lineheight-0);
+  --leading-snug:   var(--font-lineheight-1);
+  --leading-normal: var(--font-lineheight-3);
+
+  --weight-normal:   var(--font-weight-4);
+  --weight-medium:   var(--font-weight-5);
+  --weight-semibold: var(--font-weight-6);
+  --weight-bold:     var(--font-weight-7);
+}
+
+html {
+  font-size: calc(111.11% * var(--ui-scale, 1));
+  font-family: var(--font-family-primary);
+}

@@ -1,0 +1,16 @@
+:root {
+  --z-base:     1;
+  --z-raised:   2;
+  --z-handle:   5;
+  --z-chrome:  10;
+  --z-nav:     20;
+
+  --z-dropdown: 30;
+  --z-sticky:  100;
+  --z-panel:   150;
+  --z-overlay: 200;
+  --z-modal:   300;
+  --z-toast:   400;
+
+  --z-max: var(--layer-important);
+}

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>zigzag — sign in</title>
+
+<style>  :root {
+    --bg: #0f1117; --panel: #12151c; --line: #222732;
+    --fg: #d8dde8; --dim: #7c8598; --accent: #6ea8fe; --error: #f87171;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  form {
+    width: 100%; max-width: 360px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 28px 24px;
+  }
+  form[hidden] { display: none; }
+  h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+  p.sub { margin: 0 0 20px; color: var(--dim); font-size: 13px; }
+  label { display: block; margin: 14px 0 6px; color: var(--dim); font-size: 12px; }
+  input {
+    width: 100%; padding: 9px 11px;
+    background: var(--bg); color: var(--fg);
+    border: 1px solid var(--line); border-radius: 7px;
+    font: inherit;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  button {
+    width: 100%; margin-top: 20px; padding: 10px;
+    background: var(--accent); color: #0b1020;
+    border: 0; border-radius: 7px;
+    font: 600 14px/1 inherit; cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  .err { min-height: 18px; margin-top: 12px; color: var(--error); font-size: 12px; }
+  .hint { margin-top: 16px; color: var(--dim); font-size: 11.5px; line-height: 1.55; }
+  .switch { margin: 14px 0 0; color: var(--dim); font-size: 12.5px; text-align: center; }
+  .switch a { color: var(--accent); text-decoration: none; }
+  .switch a:hover { text-decoration: underline; }
+
+  .chrome {
+    position: fixed; inset: 0 0 auto 0; height: 34px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-inline-end: 6px;
+    --wails-draggable: drag;
+  }
+  :root[data-platform="mobile"] .chrome { display: none; }
+  .chrome button {
+    --wails-draggable: no-drag;
+    width: 26px; height: 26px; margin: 0; padding: 0;
+    background: transparent; color: var(--dim);
+    border: 0; border-radius: 6px;
+    font: 15px/1 inherit; cursor: pointer;
+  }
+  .chrome button:hover { background: var(--panel); color: var(--fg); }
+
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <button id="close" type="button" title="Close" aria-label="Close">&#10005;</button>
+</div>
+
+<form id="login" autocomplete="on">
+  <h1>zigzag</h1>
+  <p class="sub">Sign in to your Matrix account.</p>
+
+  <label for="hs">Homeserver</label>
+  <input id="hs" placeholder="matrix.org" autocomplete="off" spellcheck="false">
+
+  <label for="user">Username</label>
+  <input id="user" placeholder="alice" autocomplete="username" spellcheck="false">
+
+  <label for="pass">Password</label>
+  <input id="pass" type="password" autocomplete="current-password">
+
+  <button id="go" type="submit">Log in</button>
+  <div class="err" id="err"></div>
+  <p class="switch">New here? <a href="#" id="to-signup">Create an account</a></p>
+
+  <div class="hint">
+    Password login only. The access token and crypto pickle key go to the OS
+    keychain — never to disk in the clear.
+  </div>
+</form>
+
+<form id="signup" autocomplete="on" hidden>
+  <h1>Create your account</h1>
+  <p class="sub">Use the invite code an admin sent you.</p>
+
+  <label for="new-hs">Homeserver</label>
+  <input id="new-hs" placeholder="matrix.org" autocomplete="off" spellcheck="false">
+
+  <label for="code">Invite code</label>
+  <input id="code" placeholder="aB3kQ9xZ7mPq2LwT" autocomplete="off" spellcheck="false">
+
+  <label for="new-user">Username</label>
+  <input id="new-user" placeholder="alice" autocomplete="username" spellcheck="false">
+
+  <label for="new-pass">Password</label>
+  <input id="new-pass" type="password" autocomplete="new-password">
+
+  <label for="new-confirm">Confirm password</label>
+  <input id="new-confirm" type="password" autocomplete="new-password">
+
+  <button id="create" type="submit">Create account</button>
+  <div class="err" id="signup-err"></div>
+  <p class="switch">Already have an account? <a href="#" id="to-login">Log in</a></p>
+</form>
+
+</body>
+</html>
+

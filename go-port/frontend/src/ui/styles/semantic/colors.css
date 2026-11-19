@@ -1,0 +1,55 @@
+:root {
+  color-scheme: dark;
+
+  --app-bg:              light-dark(var(--gray-0), var(--gray-11));
+  --app-surface-1:       light-dark(var(--gray-2), var(--gray-10));
+  --app-surface-2:       light-dark(var(--gray-3), var(--gray-9));
+  
+  --app-chrome:          light-dark(var(--gray-2), var(--gray-9));
+  --app-chrome-glow:     light-dark(color-mix(in srgb, var(--violet-6) 11.2%, transparent),
+                                    color-mix(in srgb, var(--violet-4) 24%, transparent));
+  --app-island:          var(--app-bg);
+  --app-island-sidebar:  light-dark(var(--gray-1), var(--gray-10));
+
+  --control-border:          var(--app-border);
+  --control-hover-bg:        color-mix(in oklab, var(--app-text) 10%, transparent);
+  --control-selected-bg:     color-mix(in oklab, var(--app-accent) 22%, transparent);
+  --control-selected-border: color-mix(in oklab, var(--app-accent) 45%, transparent);
+
+  --app-topbar:          light-dark(#f3f3f3, var(--gray-9));
+  --app-sidebar:         light-dark(#f3f3f3, var(--gray-9));
+  --app-searchbar-text:  light-dark(#797979, var(--gray-0));
+  --app-searchbar-bg:    light-dark(rgb(0, 0, 0, 0.1), rgb(255, 255, 255, 0.1));
+  --app-tooltip-bg:      light-dark(rgb(0, 0, 0, 0.6), rgb(255, 255, 255, 0.8));
+  --app-tooltip-text:    light-dark(var(--gray-0), var(--gray-10));
+ 
+  --app-border:          light-dark(var(--gray-4), var(--gray-7));
+  --app-text:            light-dark(var(--gray-9), var(--gray-2));
+  --app-text-dim:        light-dark(var(--gray-7), var(--gray-6));
+  --app-text-faint:      light-dark(var(--gray-5), var(--gray-7));
+
+  --app-accent:          light-dark(var(--indigo-6), var(--indigo-4));
+  --app-accent-text:     light-dark(var(--gray-0), var(--gray-0));
+  --app-accent-ink:      light-dark(var(--indigo-8), var(--indigo-4));
+
+  --app-danger:          light-dark(var(--red-6), var(--red-4));
+  --app-pill-text:       light-dark(var(--gray-0), var(--gray-10));
+  --app-pill-accent:     light-dark(var(--indigo-7), var(--indigo-4));
+  --app-pill-danger:     light-dark(var(--red-9), var(--red-4));
+  --app-danger-text:     light-dark(var(--gray-0), var(--gray-0));
+  --app-success:         light-dark(var(--green-7), var(--green-6));
+
+  --app-titlebar-btn-bg:          light-dark(var(--gray-3), var(--gray-8));
+  --app-titlebar-btn-color:       light-dark(var(--gray-6), var(--gray-5));
+  --app-titlebar-toggle-color:    light-dark(var(--gray-7), var(--gray-4));
+  --app-titlebar-toggle-active-bg: light-dark(var(--gray-0), var(--gray-7));
+
+  --app-footerbar-btn-bg: light-dark(var(--gray-3), var(--gray-8));
+
+  --hl-yellow: #eec643;
+  --hl-green:  light-dark(var(--green-6), var(--green-5));
+  --hl-blue:   light-dark(var(--blue-6), var(--blue-4));
+  --hl-red:    light-dark(var(--red-6), var(--red-5));
+  --hl-violet: light-dark(var(--violet-6), var(--violet-4));
+}
+

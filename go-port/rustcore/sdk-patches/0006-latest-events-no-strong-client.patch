@@ -1,0 +1,53 @@
+From: zigzag go-port/rustcore
+Subject: [PATCH 6] fix(latest_events): the listen task holds no strong Client
+
+Client::latest_events() builds LatestEvents with SendQueue::new(self.clone()),
+and LatestEvents::new moved that SendQueue into listen_to_updates_task, which
+only calls subscribe() on it once, at its start. A SendQueue holds a strong
+Client. The task's handle lives in ClientInner (latest_events) and aborts the
+task when it drops — which never happens while the task holds a Client: a
+reference cycle. Once a sync response subscribed a room's latest event
+(sync::subscribe_to_room_latest_events, whenever the event cache is
+subscribed), the Client, its tasks and its SQLite stores outlived every handle
+the app held, for the life of the process.
+
+- LatestEvents::new subscribes to the send queue and hands the task the
+  receiver; the SendQueue (and its Client) is dropped when new() returns.
+
+Upstreamable (generic, no app names).
+---
+diff --git a/crates/matrix-sdk/src/latest_events/mod.rs b/crates/matrix-sdk/src/latest_events/mod.rs
+index a920208..519e38e 100644
+--- a/crates/matrix-sdk/src/latest_events/mod.rs
++++ b/crates/matrix-sdk/src/latest_events/mod.rs
+@@ -112,10 +112,14 @@ impl LatestEvents {
+ 
+         // The task listening to the event cache, the send queue, and the room infos
+         // updates.
++        //
++        // The send queue is subscribed to here, not in the task: a `SendQueue` holds a
++        // strong `Client`, and this task is aborted only when the client is dropped —
++        // which a strong `Client` inside it prevented for good (zigzag patch 0006).
+         let listen_task_handle = spawn(listen_to_updates_task(
+             registered_rooms.clone(),
+             event_cache,
+-            send_queue,
++            send_queue.subscribe(),
+             room_info_updates,
+             latest_event_queue_sender,
+         ))
+@@ -464,13 +468,12 @@ enum LatestEventQueueUpdate {
+ async fn listen_to_updates_task(
+     registered_rooms: Arc<RegisteredRooms>,
+     event_cache: EventCache,
+-    send_queue: SendQueue,
++    mut send_queue_generic_updates_subscriber: broadcast::Receiver<SendQueueUpdate>,
+     room_info_updates: broadcast::Receiver<RoomInfoNotableUpdate>,
+     latest_event_queue_sender: mpsc::UnboundedSender<LatestEventQueueUpdate>,
+ ) {
+     let mut event_cache_generic_updates_subscriber =
+         event_cache.subscribe_to_room_generic_updates();
+-    let mut send_queue_generic_updates_subscriber = send_queue.subscribe();
+     let mut room_info_updates_subscriber = room_info_updates.resubscribe();
+ 
+     loop {

@@ -1,0 +1,10 @@
+@layer primitives, reset, tokens, components;
+
+@import './primitives/index.css'     layer(primitives);
+@import './reset.css'                layer(reset);
+@import './semantic/colors.css'      layer(tokens);
+@import './semantic/font.css'        layer(tokens);
+@import './semantic/space.css'       layer(tokens);
+@import './semantic/zindex.css'      layer(tokens);
+@import './semantic/shadow.css'      layer(tokens);
+@import './semantic/animations.css'  layer(tokens);

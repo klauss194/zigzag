@@ -1,0 +1,114 @@
+From: zigzag go-port/rustcore
+Subject: [PATCH 5] feat(client): Client::forget_room_locally — the local half of Room::forget
+
+Room::forget sends /forget, rewrites m.direct when the room was a DM, then
+drops the room from the local stores (BaseClient::forget_room, crate-private).
+zigzag forgets over plain HTTP, because that m.direct rewrite starts from
+rust-sdk's own copy of m.direct and must not run. Without a way to the local
+half, every room the app forgot stayed in the state store and the event cache
+store for good.
+
+- Client::forget_room_locally(room_id): BaseClient::forget_room as it is — the
+  state store, the room held in memory, and the event cache store. Sends
+  nothing.
+- Client::forget_room_locally_if(room_id, states) /
+  BaseClient::forget_room_if: the same, only while the room's state is one of
+  `states`, checked and dropped from the state store under the state store
+  lock that sync responses are processed under — so a sweep of rooms that
+  looked left never drops one a response rejoined meanwhile. The event cache
+  store is cleared after that lock is released (the event cache saves room
+  info under it while holding its own lock). Returns whether it dropped it.
+
+Upstreamable (generic, no app names).
+---
+diff --git a/crates/matrix-sdk-base/src/client.rs b/crates/matrix-sdk-base/src/client.rs
+index c6a326c4f..d59e9246d 100644
+--- a/crates/matrix-sdk-base/src/client.rs
++++ b/crates/matrix-sdk-base/src/client.rs
+@@ -1066,6 +1066,32 @@ impl BaseClient {
+         Ok(())
+     }
+ 
++    /// [`Self::forget_room`], only while the room's state is one of `states`.
++    ///
++    /// The state is checked, and the room dropped from the state store, under
++    /// the state store lock that sync responses are processed under: a room a
++    /// response rejoined in between is kept. The event cache store is cleared
++    /// after the lock is released (the event cache saves room info under that
++    /// lock while it holds its own). Returns whether the room was dropped.
++    pub async fn forget_room_if(&self, room_id: &RoomId, states: &[RoomState]) -> Result<bool> {
++        {
++            let state_store_guard = self.state_store_lock().lock().await;
++            match self.state_store.room(room_id) {
++                Some(room) if states.contains(&room.state()) => {}
++                _ => return Ok(false),
++            }
++            self.state_store.forget_room_with_guard(&state_store_guard, room_id).await?;
++        }
++
++        match self.event_cache_store().lock().await? {
++            EventCacheStoreLockState::Clean(guard) | EventCacheStoreLockState::Dirty(guard) => {
++                guard.remove_room(room_id).await?
++            }
++        }
++
++        Ok(true)
++    }
++
+     /// Get the olm machine.
+     #[cfg(feature = "e2e-encryption")]
+     pub async fn olm_machine(&self) -> RwLockReadGuard<'_, Option<OlmMachine>> {
+diff --git a/crates/matrix-sdk-base/src/store/mod.rs b/crates/matrix-sdk-base/src/store/mod.rs
+index 88c2fae5e..e5ca11bbe 100644
+--- a/crates/matrix-sdk-base/src/store/mod.rs
++++ b/crates/matrix-sdk-base/src/store/mod.rs
+@@ -395,6 +395,18 @@ impl BaseStateStore {
+         self.rooms.write().unwrap().remove(room_id);
+         Ok(())
+     }
++
++    /// [`Self::forget_room`] for a caller that holds [`Self::lock`] (the
++    /// store's own remove_room takes it, and it is not reentrant).
++    pub(crate) async fn forget_room_with_guard(
++        &self,
++        guard: &tokio::sync::MutexGuard<'_, ()>,
++        room_id: &RoomId,
++    ) -> Result<()> {
++        self.inner.remove_room_with_guard(guard, room_id).await?;
++        self.rooms.write().unwrap().remove(room_id);
++        Ok(())
++    }
+ }
+ 
+ #[cfg(not(tarpaulin_include))]
+diff --git a/crates/matrix-sdk/src/client/mod.rs b/crates/matrix-sdk/src/client/mod.rs
+index 180eb28eb..e0fbbc005 100644
+--- a/crates/matrix-sdk/src/client/mod.rs
++++ b/crates/matrix-sdk/src/client/mod.rs
+@@ -821,6 +821,26 @@ impl Client {
+         self.base_client().event_cache_store()
+     }
+ 
++    /// Drop a room from the local stores — the state store (and the room
++    /// held in memory) and the event cache store — the local half of
++    /// [`Room::forget`], for an app that forgot the room on the server by
++    /// other means. Sends nothing.
++    pub async fn forget_room_locally(&self, room_id: &RoomId) -> Result<()> {
++        Ok(self.base_client().forget_room(room_id).await?)
++    }
++
++    /// [`Self::forget_room_locally`], only while the room's state is one of
++    /// `states` — checked under the lock sync responses are processed under,
++    /// so a room the sync rejoined meanwhile is kept. Returns whether the room
++    /// was dropped.
++    pub async fn forget_room_locally_if(
++        &self,
++        room_id: &RoomId,
++        states: &[RoomState],
++    ) -> Result<bool> {
++        Ok(self.base_client().forget_room_if(room_id, states).await?)
++    }
++
+     /// Get a reference to the media store.
+     pub fn media_store(&self) -> &MediaStoreLock {
+         self.base_client().media_store()

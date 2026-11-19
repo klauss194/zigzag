@@ -1,0 +1,17 @@
+{
+  "name": "zigzag-go-frontend",
+  "private": true,
+  "//": "frontend/src is zigzag's src/frontend/src, copied byte-identical — including its extensionless relative imports (the builder resolves .js for them). There is no \"type\": \"module\" here: nothing gains from it. dist/ is a BUILD OUTPUT, what //go:embed all:dist compiles into the binary, written by cmd/frontendbuild (the Go builder that replaced webpack, run through build.mjs) together with the source pack, so the frontend build runs before `go build` — the Taskfile enforces that. Dependencies are zigzag's verbatim, plus @wailsio/runtime for the bridge; playwright is omitted with its UI smoke harness.",
+  "scripts": {
+    "build": "node build.mjs --mode release",
+    "build:dev": "node build.mjs --mode dev"
+  },
+  "dependencies": {
+    "@lit-labs/preact-signals": "^1.0.3",
+    "@preact/signals-core": "^1.14.2",
+    "@wailsio/runtime": "3.0.0-beta.27",
+    "lit": "^3",
+    "open-props": "^1.7.23",
+    "roarr": "^7.21.5"
+  }
+}

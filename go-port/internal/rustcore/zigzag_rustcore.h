@@ -1,0 +1,1581 @@
+#include <stdbool.h>
+#include <stdint.h>
+
+#ifdef UNIFFI_SHARED_H
+	#ifndef UNIFFI_SHARED_HEADER_V6
+		#error Combining helper code from multiple versions of uniffi is not supported
+	#endif
+#else
+#define UNIFFI_SHARED_H
+#define UNIFFI_SHARED_HEADER_V6
+
+typedef struct RustBuffer {
+	uint64_t capacity;
+	uint64_t len;
+	uint8_t *data;
+} RustBuffer;
+
+typedef struct ForeignBytes {
+	int32_t len;
+	const uint8_t *data;
+} ForeignBytes;
+
+typedef struct RustCallStatus {
+	int8_t code;
+	RustBuffer errorBuf;
+} RustCallStatus;
+
+#endif
+
+#ifndef UNIFFI_FFIDEF_RUST_FUTURE_CONTINUATION_CALLBACK
+#define UNIFFI_FFIDEF_RUST_FUTURE_CONTINUATION_CALLBACK
+typedef void (*UniffiRustFutureContinuationCallback)(uint64_t data, int8_t poll_result);
+
+static void call_UniffiRustFutureContinuationCallback(
+				UniffiRustFutureContinuationCallback cb, uint64_t data, int8_t poll_result)
+{
+	return cb(data, poll_result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_DROPPED_CALLBACK
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_DROPPED_CALLBACK
+typedef void (*UniffiForeignFutureDroppedCallback)(uint64_t handle);
+
+static void call_UniffiForeignFutureDroppedCallback(
+				UniffiForeignFutureDroppedCallback cb, uint64_t handle)
+{
+	return cb(handle);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_FREE
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_FREE
+typedef void (*UniffiCallbackInterfaceFree)(uint64_t handle);
+
+static void call_UniffiCallbackInterfaceFree(
+				UniffiCallbackInterfaceFree cb, uint64_t handle)
+{
+	return cb(handle);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_CLONE
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_CLONE
+typedef uint64_t (*UniffiCallbackInterfaceClone)(uint64_t handle);
+
+static uint64_t call_UniffiCallbackInterfaceClone(
+				UniffiCallbackInterfaceClone cb, uint64_t handle)
+{
+	return cb(handle);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_DROPPED_CALLBACK_STRUCT
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_DROPPED_CALLBACK_STRUCT
+typedef struct UniffiForeignFutureDroppedCallbackStruct {
+    uint64_t handle;
+    UniffiForeignFutureDroppedCallback free;
+} UniffiForeignFutureDroppedCallbackStruct;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U8
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U8
+typedef struct UniffiForeignFutureResultU8 {
+    uint8_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultU8;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U8
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U8
+typedef void (*UniffiForeignFutureCompleteU8)(uint64_t callback_data, UniffiForeignFutureResultU8 result);
+
+static void call_UniffiForeignFutureCompleteU8(
+				UniffiForeignFutureCompleteU8 cb, uint64_t callback_data, UniffiForeignFutureResultU8 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I8
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I8
+typedef struct UniffiForeignFutureResultI8 {
+    int8_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultI8;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I8
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I8
+typedef void (*UniffiForeignFutureCompleteI8)(uint64_t callback_data, UniffiForeignFutureResultI8 result);
+
+static void call_UniffiForeignFutureCompleteI8(
+				UniffiForeignFutureCompleteI8 cb, uint64_t callback_data, UniffiForeignFutureResultI8 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U16
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U16
+typedef struct UniffiForeignFutureResultU16 {
+    uint16_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultU16;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U16
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U16
+typedef void (*UniffiForeignFutureCompleteU16)(uint64_t callback_data, UniffiForeignFutureResultU16 result);
+
+static void call_UniffiForeignFutureCompleteU16(
+				UniffiForeignFutureCompleteU16 cb, uint64_t callback_data, UniffiForeignFutureResultU16 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I16
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I16
+typedef struct UniffiForeignFutureResultI16 {
+    int16_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultI16;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I16
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I16
+typedef void (*UniffiForeignFutureCompleteI16)(uint64_t callback_data, UniffiForeignFutureResultI16 result);
+
+static void call_UniffiForeignFutureCompleteI16(
+				UniffiForeignFutureCompleteI16 cb, uint64_t callback_data, UniffiForeignFutureResultI16 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U32
+typedef struct UniffiForeignFutureResultU32 {
+    uint32_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultU32;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U32
+typedef void (*UniffiForeignFutureCompleteU32)(uint64_t callback_data, UniffiForeignFutureResultU32 result);
+
+static void call_UniffiForeignFutureCompleteU32(
+				UniffiForeignFutureCompleteU32 cb, uint64_t callback_data, UniffiForeignFutureResultU32 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I32
+typedef struct UniffiForeignFutureResultI32 {
+    int32_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultI32;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I32
+typedef void (*UniffiForeignFutureCompleteI32)(uint64_t callback_data, UniffiForeignFutureResultI32 result);
+
+static void call_UniffiForeignFutureCompleteI32(
+				UniffiForeignFutureCompleteI32 cb, uint64_t callback_data, UniffiForeignFutureResultI32 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_U64
+typedef struct UniffiForeignFutureResultU64 {
+    uint64_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultU64;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_U64
+typedef void (*UniffiForeignFutureCompleteU64)(uint64_t callback_data, UniffiForeignFutureResultU64 result);
+
+static void call_UniffiForeignFutureCompleteU64(
+				UniffiForeignFutureCompleteU64 cb, uint64_t callback_data, UniffiForeignFutureResultU64 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_I64
+typedef struct UniffiForeignFutureResultI64 {
+    int64_t returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultI64;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_I64
+typedef void (*UniffiForeignFutureCompleteI64)(uint64_t callback_data, UniffiForeignFutureResultI64 result);
+
+static void call_UniffiForeignFutureCompleteI64(
+				UniffiForeignFutureCompleteI64 cb, uint64_t callback_data, UniffiForeignFutureResultI64 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_F32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_F32
+typedef struct UniffiForeignFutureResultF32 {
+    float returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultF32;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_F32
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_F32
+typedef void (*UniffiForeignFutureCompleteF32)(uint64_t callback_data, UniffiForeignFutureResultF32 result);
+
+static void call_UniffiForeignFutureCompleteF32(
+				UniffiForeignFutureCompleteF32 cb, uint64_t callback_data, UniffiForeignFutureResultF32 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_F64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_F64
+typedef struct UniffiForeignFutureResultF64 {
+    double returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultF64;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_F64
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_F64
+typedef void (*UniffiForeignFutureCompleteF64)(uint64_t callback_data, UniffiForeignFutureResultF64 result);
+
+static void call_UniffiForeignFutureCompleteF64(
+				UniffiForeignFutureCompleteF64 cb, uint64_t callback_data, UniffiForeignFutureResultF64 result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_RUST_BUFFER
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_RUST_BUFFER
+typedef struct UniffiForeignFutureResultRustBuffer {
+    RustBuffer returnValue;
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultRustBuffer;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_RUST_BUFFER
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_RUST_BUFFER
+typedef void (*UniffiForeignFutureCompleteRustBuffer)(uint64_t callback_data, UniffiForeignFutureResultRustBuffer result);
+
+static void call_UniffiForeignFutureCompleteRustBuffer(
+				UniffiForeignFutureCompleteRustBuffer cb, uint64_t callback_data, UniffiForeignFutureResultRustBuffer result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_VOID
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_RESULT_VOID
+typedef struct UniffiForeignFutureResultVoid {
+    RustCallStatus callStatus;
+} UniffiForeignFutureResultVoid;
+
+#endif
+#ifndef UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_VOID
+#define UNIFFI_FFIDEF_FOREIGN_FUTURE_COMPLETE_VOID
+typedef void (*UniffiForeignFutureCompleteVoid)(uint64_t callback_data, UniffiForeignFutureResultVoid result);
+
+static void call_UniffiForeignFutureCompleteVoid(
+				UniffiForeignFutureCompleteVoid cb, uint64_t callback_data, UniffiForeignFutureResultVoid result)
+{
+	return cb(callback_data, result);
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_SEND_QUEUE_LISTENER_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_SEND_QUEUE_LISTENER_METHOD0
+typedef void (*UniffiCallbackInterfaceSendQueueListenerMethod0)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceSendQueueListenerMethod0(
+				UniffiCallbackInterfaceSendQueueListenerMethod0 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_SYNC_LISTENER_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_SYNC_LISTENER_METHOD0
+typedef void (*UniffiCallbackInterfaceSyncListenerMethod0)(uint64_t uniffi_handle, RustBuffer batch, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceSyncListenerMethod0(
+				UniffiCallbackInterfaceSyncListenerMethod0 cb, uint64_t uniffi_handle, RustBuffer batch, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, batch, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD0
+typedef void (*UniffiCallbackInterfaceVerificationListenerMethod0)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceVerificationListenerMethod0(
+				UniffiCallbackInterfaceVerificationListenerMethod0 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD1
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD1
+typedef void (*UniffiCallbackInterfaceVerificationListenerMethod1)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceVerificationListenerMethod1(
+				UniffiCallbackInterfaceVerificationListenerMethod1 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD2
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD2
+typedef void (*UniffiCallbackInterfaceVerificationListenerMethod2)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceVerificationListenerMethod2(
+				UniffiCallbackInterfaceVerificationListenerMethod2 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD3
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD3
+typedef void (*UniffiCallbackInterfaceVerificationListenerMethod3)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceVerificationListenerMethod3(
+				UniffiCallbackInterfaceVerificationListenerMethod3 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD4
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_VERIFICATION_LISTENER_METHOD4
+typedef void (*UniffiCallbackInterfaceVerificationListenerMethod4)(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+
+static void call_UniffiCallbackInterfaceVerificationListenerMethod4(
+				UniffiCallbackInterfaceVerificationListenerMethod4 cb, uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus )
+{
+	return cb(uniffi_handle, payload_json, uniffi_out_return, callStatus );
+}
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_SEND_QUEUE_LISTENER
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_SEND_QUEUE_LISTENER
+typedef struct UniffiVTableCallbackInterfaceSendQueueListener {
+    UniffiCallbackInterfaceFree uniffiFree;
+    UniffiCallbackInterfaceClone uniffiClone;
+    UniffiCallbackInterfaceSendQueueListenerMethod0 onUpdate;
+} UniffiVTableCallbackInterfaceSendQueueListener;
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_SYNC_LISTENER
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_SYNC_LISTENER
+typedef struct UniffiVTableCallbackInterfaceSyncListener {
+    UniffiCallbackInterfaceFree uniffiFree;
+    UniffiCallbackInterfaceClone uniffiClone;
+    UniffiCallbackInterfaceSyncListenerMethod0 onBatch;
+} UniffiVTableCallbackInterfaceSyncListener;
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_VERIFICATION_LISTENER
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_VERIFICATION_LISTENER
+typedef struct UniffiVTableCallbackInterfaceVerificationListener {
+    UniffiCallbackInterfaceFree uniffiFree;
+    UniffiCallbackInterfaceClone uniffiClone;
+    UniffiCallbackInterfaceVerificationListenerMethod0 onRequest;
+    UniffiCallbackInterfaceVerificationListenerMethod1 onReady;
+    UniffiCallbackInterfaceVerificationListenerMethod2 onSas;
+    UniffiCallbackInterfaceVerificationListenerMethod3 onDone;
+    UniffiCallbackInterfaceVerificationListenerMethod4 onCancelled;
+} UniffiVTableCallbackInterfaceVerificationListener;
+
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_CORE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_CORE
+uint64_t uniffi_zigzag_rustcore_fn_clone_core(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_CORE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_CORE
+void uniffi_zigzag_rustcore_fn_free_core(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_LOGOUT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_LOGOUT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_logout(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_RELEASE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_RELEASE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_release(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SESSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SESSION
+RustBuffer uniffi_zigzag_rustcore_fn_method_core_session(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_ACCOUNT_DATA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_ACCOUNT_DATA
+uint64_t uniffi_zigzag_rustcore_fn_method_core_account_data(uint64_t ptr, RustBuffer event_type
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_BAN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_BAN
+uint64_t uniffi_zigzag_rustcore_fn_method_core_ban(uint64_t ptr, RustBuffer room_id, RustBuffer user_id, RustBuffer reason
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_CREATE_ROOM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_CREATE_ROOM
+uint64_t uniffi_zigzag_rustcore_fn_method_core_create_room(uint64_t ptr, RustBuffer body_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_DOWNLOAD_MEDIA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_DOWNLOAD_MEDIA
+uint64_t uniffi_zigzag_rustcore_fn_method_core_download_media(uint64_t ptr, RustBuffer source_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_EVENT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_event(uint64_t ptr, RustBuffer room_id, RustBuffer event_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_FORGET_ROOM_LOCALLY
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_FORGET_ROOM_LOCALLY
+uint64_t uniffi_zigzag_rustcore_fn_method_core_forget_room_locally(uint64_t ptr, RustBuffer room_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_FORGET_ROOM_LOCALLY_IF
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_FORGET_ROOM_LOCALLY_IF
+uint64_t uniffi_zigzag_rustcore_fn_method_core_forget_room_locally_if(uint64_t ptr, RustBuffer room_id, RustBuffer membership
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_GET_PRESENCE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_GET_PRESENCE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_get_presence(uint64_t ptr, RustBuffer user_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_INVITE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_INVITE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_invite(uint64_t ptr, RustBuffer room_id, RustBuffer user_id, RustBuffer reason
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_JOIN_ROOM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_JOIN_ROOM
+uint64_t uniffi_zigzag_rustcore_fn_method_core_join_room(uint64_t ptr, RustBuffer id_or_alias, RustBuffer via
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_KICK
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_KICK
+uint64_t uniffi_zigzag_rustcore_fn_method_core_kick(uint64_t ptr, RustBuffer room_id, RustBuffer user_id, RustBuffer reason
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_KNOWN_ROOMS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_KNOWN_ROOMS
+RustBuffer uniffi_zigzag_rustcore_fn_method_core_known_rooms(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_MESSAGES
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_MESSAGES
+uint64_t uniffi_zigzag_rustcore_fn_method_core_messages(uint64_t ptr, RustBuffer room_id, RustBuffer from, uint32_t limit_events, int8_t backward
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_REDACT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_REDACT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_redact(uint64_t ptr, RustBuffer room_id, RustBuffer event_id, RustBuffer reason, RustBuffer txn_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_RELATIONS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_RELATIONS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_relations(uint64_t ptr, RustBuffer room_id, RustBuffer event_id, RustBuffer rel_type, RustBuffer event_type, int8_t recurse, int8_t backward, RustBuffer from, uint32_t limit_events
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_ROOMS_JOINED_WITH
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_ROOMS_JOINED_WITH
+uint64_t uniffi_zigzag_rustcore_fn_method_core_rooms_joined_with(uint64_t ptr, RustBuffer user_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_ATTACHMENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_ATTACHMENT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_attachment(uint64_t ptr, RustBuffer room_id, RustBuffer filename, RustBuffer mime_type, RustBuffer data, RustBuffer caption, RustBuffer image_size, RustBuffer thumbnail
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_EVENT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_event(uint64_t ptr, RustBuffer room_id, RustBuffer event_type, RustBuffer content_json, RustBuffer txn_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_RECEIPT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_RECEIPT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_receipt(uint64_t ptr, RustBuffer room_id, RustBuffer receipt_type, RustBuffer thread, RustBuffer event_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_STATE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_STATE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_state(uint64_t ptr, RustBuffer room_id, RustBuffer event_type, RustBuffer state_key, RustBuffer content_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_ACCOUNT_DATA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_ACCOUNT_DATA
+uint64_t uniffi_zigzag_rustcore_fn_method_core_set_account_data(uint64_t ptr, RustBuffer event_type, RustBuffer content_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_PRESENCE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_PRESENCE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_set_presence(uint64_t ptr, RustBuffer state, RustBuffer status_msg
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_READ_MARKERS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SET_READ_MARKERS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_set_read_markers(uint64_t ptr, RustBuffer room_id, RustBuffer fully_read, RustBuffer read, RustBuffer read_private
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_THREADS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_THREADS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_threads(uint64_t ptr, RustBuffer room_id, int8_t participated_only, RustBuffer from, uint32_t limit_roots
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TYPING_NOTICE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TYPING_NOTICE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_typing_notice(uint64_t ptr, RustBuffer room_id, int8_t typing
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_UNBAN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_UNBAN
+uint64_t uniffi_zigzag_rustcore_fn_method_core_unban(uint64_t ptr, RustBuffer room_id, RustBuffer user_id, RustBuffer reason
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ABORT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ABORT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_abort(uint64_t ptr, RustBuffer room_id, RustBuffer transaction_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_EDIT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_EDIT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_edit(uint64_t ptr, RustBuffer room_id, RustBuffer transaction_id, RustBuffer event_type, RustBuffer content_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_IS_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_IS_ENABLED
+int8_t uniffi_zigzag_rustcore_fn_method_core_send_queue_is_enabled(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_LISTEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_LISTEN
+void uniffi_zigzag_rustcore_fn_method_core_send_queue_listen(uint64_t ptr, uint64_t listener, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_PENDING
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_PENDING
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_pending(uint64_t ptr, RustBuffer room_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_REPORT_UPLOAD_PROGRESS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_REPORT_UPLOAD_PROGRESS
+void uniffi_zigzag_rustcore_fn_method_core_send_queue_report_upload_progress(uint64_t ptr, int8_t enabled, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_RESPAWN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_RESPAWN
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_respawn(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ROOM_IS_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ROOM_IS_ENABLED
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_room_is_enabled(uint64_t ptr, RustBuffer room_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ROOM_SET_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_ROOM_SET_ENABLED
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_room_set_enabled(uint64_t ptr, RustBuffer room_id, int8_t enabled
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SEND
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SEND
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_send(uint64_t ptr, RustBuffer room_id, RustBuffer event_type, RustBuffer content_json
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SEND_ATTACHMENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SEND_ATTACHMENT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_send_attachment(uint64_t ptr, RustBuffer room_id, RustBuffer filename, RustBuffer mime_type, RustBuffer data, RustBuffer caption, RustBuffer image_size, RustBuffer thumbnail
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SET_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_SET_ENABLED
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_set_enabled(uint64_t ptr, int8_t enabled
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_UNWEDGE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SEND_QUEUE_UNWEDGE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_send_queue_unwedge(uint64_t ptr, RustBuffer room_id, RustBuffer transaction_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_CONFIGURE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_CONFIGURE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_sync_configure(uint64_t ptr, RustBuffer config
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_HAS_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_HAS_POSITION
+int8_t uniffi_zigzag_rustcore_fn_method_core_sync_has_position(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_POSITION
+RustBuffer uniffi_zigzag_rustcore_fn_method_core_sync_position(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_PROBE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_PROBE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_sync_probe(uint64_t ptr, uint64_t timeout_ms
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_RESET_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_RESET_POSITION
+void uniffi_zigzag_rustcore_fn_method_core_sync_reset_position(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_RUN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_RUN
+uint64_t uniffi_zigzag_rustcore_fn_method_core_sync_run(uint64_t ptr, uint64_t listener
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_STOP
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_STOP
+void uniffi_zigzag_rustcore_fn_method_core_sync_stop(uint64_t ptr, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_SUBSCRIBE_ROOMS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_SYNC_SUBSCRIBE_ROOMS
+void uniffi_zigzag_rustcore_fn_method_core_sync_subscribe_rooms(uint64_t ptr, RustBuffer room_ids, RustBuffer required_state, uint32_t timeline_limit, int8_t cancel_in_flight, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_EXPORT_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_EXPORT_KEYS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_trust_export_keys(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_IMPORT_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_IMPORT_KEYS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_trust_import_keys(uint64_t ptr, RustBuffer keys
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_OWN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_OWN
+uint64_t uniffi_zigzag_rustcore_fn_method_core_trust_own(uint64_t ptr, int8_t refresh
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_PUBLISH_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_PUBLISH_KEYS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_trust_publish_keys(uint64_t ptr, RustBuffer password, int8_t reset
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_SIGN_OWN_DEVICE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_TRUST_SIGN_OWN_DEVICE
+uint64_t uniffi_zigzag_rustcore_fn_method_core_trust_sign_own_device(uint64_t ptr
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_ACCEPT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_ACCEPT
+uint64_t uniffi_zigzag_rustcore_fn_method_core_verification_accept(uint64_t ptr, RustBuffer flow_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_CANCEL
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_CANCEL
+uint64_t uniffi_zigzag_rustcore_fn_method_core_verification_cancel(uint64_t ptr, RustBuffer flow_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_CONFIRM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_CONFIRM
+uint64_t uniffi_zigzag_rustcore_fn_method_core_verification_confirm(uint64_t ptr, RustBuffer flow_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_LISTEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_LISTEN
+void uniffi_zigzag_rustcore_fn_method_core_verification_listen(uint64_t ptr, uint64_t listener, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_REQUEST
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_REQUEST
+uint64_t uniffi_zigzag_rustcore_fn_method_core_verification_request(uint64_t ptr, RustBuffer device_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_START_SAS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_CORE_VERIFICATION_START_SAS
+uint64_t uniffi_zigzag_rustcore_fn_method_core_verification_start_sas(uint64_t ptr, RustBuffer flow_id
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_RELEASE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_RELEASE
+uint64_t uniffi_zigzag_rustcore_fn_clone_release(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_RELEASE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_RELEASE
+void uniffi_zigzag_rustcore_fn_free_release(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_RELEASE_WAIT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_RELEASE_WAIT
+uint64_t uniffi_zigzag_rustcore_fn_method_release_wait(uint64_t ptr, uint64_t timeout_ms
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_PUSHRULES
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CLONE_PUSHRULES
+uint64_t uniffi_zigzag_rustcore_fn_clone_pushrules(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_PUSHRULES
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FREE_PUSHRULES
+void uniffi_zigzag_rustcore_fn_free_pushrules(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CONSTRUCTOR_PUSHRULES_NEW
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_CONSTRUCTOR_PUSHRULES_NEW
+uint64_t uniffi_zigzag_rustcore_fn_constructor_pushrules_new(RustBuffer ruleset_json, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_PUSHRULES_EVALUATE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_METHOD_PUSHRULES_EVALUATE
+RustBuffer uniffi_zigzag_rustcore_fn_method_pushrules_evaluate(uint64_t ptr, RustBuffer event_json, RustBuffer room, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_SENDQUEUELISTENER
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_SENDQUEUELISTENER
+void uniffi_zigzag_rustcore_fn_init_callback_vtable_sendqueuelistener(UniffiVTableCallbackInterfaceSendQueueListener* vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_SYNCLISTENER
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_SYNCLISTENER
+void uniffi_zigzag_rustcore_fn_init_callback_vtable_synclistener(UniffiVTableCallbackInterfaceSyncListener* vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_VERIFICATIONLISTENER
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_INIT_CALLBACK_VTABLE_VERIFICATIONLISTENER
+void uniffi_zigzag_rustcore_fn_init_callback_vtable_verificationlistener(UniffiVTableCallbackInterfaceVerificationListener* vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_CORE_SQLITE_VERSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_CORE_SQLITE_VERSION
+RustBuffer uniffi_zigzag_rustcore_fn_func_core_sqlite_version(RustCallStatus *out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_CORE_VERSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_CORE_VERSION
+RustBuffer uniffi_zigzag_rustcore_fn_func_core_version(RustCallStatus *out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_ENABLE_TRACING
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_ENABLE_TRACING
+RustBuffer uniffi_zigzag_rustcore_fn_func_enable_tracing(RustBuffer filter, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_LOGIN_PASSWORD
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_LOGIN_PASSWORD
+uint64_t uniffi_zigzag_rustcore_fn_func_login_password(RustBuffer store, RustBuffer server, RustBuffer username, RustBuffer password, RustBuffer device_display_name
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_REGISTER_WITH_TOKEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_REGISTER_WITH_TOKEN
+uint64_t uniffi_zigzag_rustcore_fn_func_register_with_token(RustBuffer store, RustBuffer server, RustBuffer username, RustBuffer password, RustBuffer token, RustBuffer device_display_name
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_RESTORE_SESSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_RESTORE_SESSION
+uint64_t uniffi_zigzag_rustcore_fn_func_restore_session(RustBuffer store, RustBuffer session
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_FFI_SELFTEST_SEND_QUEUE_PAYLOADS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_FFI_SELFTEST_SEND_QUEUE_PAYLOADS
+RustBuffer uniffi_zigzag_rustcore_fn_func_ffi_selftest_send_queue_payloads(RustCallStatus *out_status
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_FFI_SELFTEST_VERIFICATION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_FN_FUNC_FFI_SELFTEST_VERIFICATION
+void uniffi_zigzag_rustcore_fn_func_ffi_selftest_verification(uint64_t listener, uint32_t rounds, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_ALLOC
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_ALLOC
+RustBuffer ffi_zigzag_rustcore_rustbuffer_alloc(uint64_t size, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_FROM_BYTES
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_FROM_BYTES
+RustBuffer ffi_zigzag_rustcore_rustbuffer_from_bytes(ForeignBytes bytes, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_FREE
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_FREE
+void ffi_zigzag_rustcore_rustbuffer_free(RustBuffer buf, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_RESERVE
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUSTBUFFER_RESERVE
+RustBuffer ffi_zigzag_rustcore_rustbuffer_reserve(RustBuffer buf, uint64_t additional, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U8
+void ffi_zigzag_rustcore_rust_future_poll_u8(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U8
+void ffi_zigzag_rustcore_rust_future_cancel_u8(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U8
+void ffi_zigzag_rustcore_rust_future_free_u8(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U8
+uint8_t ffi_zigzag_rustcore_rust_future_complete_u8(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I8
+void ffi_zigzag_rustcore_rust_future_poll_i8(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I8
+void ffi_zigzag_rustcore_rust_future_cancel_i8(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I8
+void ffi_zigzag_rustcore_rust_future_free_i8(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I8
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I8
+int8_t ffi_zigzag_rustcore_rust_future_complete_i8(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U16
+void ffi_zigzag_rustcore_rust_future_poll_u16(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U16
+void ffi_zigzag_rustcore_rust_future_cancel_u16(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U16
+void ffi_zigzag_rustcore_rust_future_free_u16(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U16
+uint16_t ffi_zigzag_rustcore_rust_future_complete_u16(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I16
+void ffi_zigzag_rustcore_rust_future_poll_i16(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I16
+void ffi_zigzag_rustcore_rust_future_cancel_i16(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I16
+void ffi_zigzag_rustcore_rust_future_free_i16(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I16
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I16
+int16_t ffi_zigzag_rustcore_rust_future_complete_i16(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U32
+void ffi_zigzag_rustcore_rust_future_poll_u32(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U32
+void ffi_zigzag_rustcore_rust_future_cancel_u32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U32
+void ffi_zigzag_rustcore_rust_future_free_u32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U32
+uint32_t ffi_zigzag_rustcore_rust_future_complete_u32(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I32
+void ffi_zigzag_rustcore_rust_future_poll_i32(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I32
+void ffi_zigzag_rustcore_rust_future_cancel_i32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I32
+void ffi_zigzag_rustcore_rust_future_free_i32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I32
+int32_t ffi_zigzag_rustcore_rust_future_complete_i32(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_U64
+void ffi_zigzag_rustcore_rust_future_poll_u64(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_U64
+void ffi_zigzag_rustcore_rust_future_cancel_u64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_U64
+void ffi_zigzag_rustcore_rust_future_free_u64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_U64
+uint64_t ffi_zigzag_rustcore_rust_future_complete_u64(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_I64
+void ffi_zigzag_rustcore_rust_future_poll_i64(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_I64
+void ffi_zigzag_rustcore_rust_future_cancel_i64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_I64
+void ffi_zigzag_rustcore_rust_future_free_i64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_I64
+int64_t ffi_zigzag_rustcore_rust_future_complete_i64(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_F32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_F32
+void ffi_zigzag_rustcore_rust_future_poll_f32(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_F32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_F32
+void ffi_zigzag_rustcore_rust_future_cancel_f32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_F32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_F32
+void ffi_zigzag_rustcore_rust_future_free_f32(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_F32
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_F32
+float ffi_zigzag_rustcore_rust_future_complete_f32(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_F64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_F64
+void ffi_zigzag_rustcore_rust_future_poll_f64(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_F64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_F64
+void ffi_zigzag_rustcore_rust_future_cancel_f64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_F64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_F64
+void ffi_zigzag_rustcore_rust_future_free_f64(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_F64
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_F64
+double ffi_zigzag_rustcore_rust_future_complete_f64(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_RUST_BUFFER
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_RUST_BUFFER
+void ffi_zigzag_rustcore_rust_future_poll_rust_buffer(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_RUST_BUFFER
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_RUST_BUFFER
+void ffi_zigzag_rustcore_rust_future_cancel_rust_buffer(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_RUST_BUFFER
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_RUST_BUFFER
+void ffi_zigzag_rustcore_rust_future_free_rust_buffer(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_RUST_BUFFER
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_RUST_BUFFER
+RustBuffer ffi_zigzag_rustcore_rust_future_complete_rust_buffer(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_VOID
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_POLL_VOID
+void ffi_zigzag_rustcore_rust_future_poll_void(uint64_t handle, UniffiRustFutureContinuationCallback callback, uint64_t callback_data
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_VOID
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_CANCEL_VOID
+void ffi_zigzag_rustcore_rust_future_cancel_void(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_VOID
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_FREE_VOID
+void ffi_zigzag_rustcore_rust_future_free_void(uint64_t handle
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_VOID
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_RUST_FUTURE_COMPLETE_VOID
+void ffi_zigzag_rustcore_rust_future_complete_void(uint64_t handle, RustCallStatus *out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_CORE_SQLITE_VERSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_CORE_SQLITE_VERSION
+uint16_t uniffi_zigzag_rustcore_checksum_func_core_sqlite_version(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_CORE_VERSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_CORE_VERSION
+uint16_t uniffi_zigzag_rustcore_checksum_func_core_version(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_ENABLE_TRACING
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_ENABLE_TRACING
+uint16_t uniffi_zigzag_rustcore_checksum_func_enable_tracing(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_LOGIN_PASSWORD
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_LOGIN_PASSWORD
+uint16_t uniffi_zigzag_rustcore_checksum_func_login_password(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_REGISTER_WITH_TOKEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_REGISTER_WITH_TOKEN
+uint16_t uniffi_zigzag_rustcore_checksum_func_register_with_token(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_RESTORE_SESSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_RESTORE_SESSION
+uint16_t uniffi_zigzag_rustcore_checksum_func_restore_session(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_FFI_SELFTEST_SEND_QUEUE_PAYLOADS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_FFI_SELFTEST_SEND_QUEUE_PAYLOADS
+uint16_t uniffi_zigzag_rustcore_checksum_func_ffi_selftest_send_queue_payloads(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_FFI_SELFTEST_VERIFICATION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_FUNC_FFI_SELFTEST_VERIFICATION
+uint16_t uniffi_zigzag_rustcore_checksum_func_ffi_selftest_verification(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_LOGOUT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_LOGOUT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_logout(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_RELEASE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_RELEASE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_release(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SESSION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SESSION
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_session(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_ACCOUNT_DATA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_ACCOUNT_DATA
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_account_data(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_BAN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_BAN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_ban(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_CREATE_ROOM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_CREATE_ROOM
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_create_room(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_DOWNLOAD_MEDIA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_DOWNLOAD_MEDIA
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_download_media(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_EVENT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_event(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_FORGET_ROOM_LOCALLY
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_FORGET_ROOM_LOCALLY
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_forget_room_locally(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_FORGET_ROOM_LOCALLY_IF
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_FORGET_ROOM_LOCALLY_IF
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_forget_room_locally_if(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_GET_PRESENCE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_GET_PRESENCE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_get_presence(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_INVITE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_INVITE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_invite(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_JOIN_ROOM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_JOIN_ROOM
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_join_room(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_KICK
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_KICK
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_kick(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_KNOWN_ROOMS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_KNOWN_ROOMS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_known_rooms(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_MESSAGES
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_MESSAGES
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_messages(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_REDACT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_REDACT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_redact(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_RELATIONS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_RELATIONS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_relations(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_ROOMS_JOINED_WITH
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_ROOMS_JOINED_WITH
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_rooms_joined_with(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_ATTACHMENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_ATTACHMENT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_attachment(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_EVENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_EVENT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_event(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_RECEIPT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_RECEIPT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_receipt(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_STATE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_STATE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_state(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_ACCOUNT_DATA
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_ACCOUNT_DATA
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_set_account_data(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_PRESENCE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_PRESENCE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_set_presence(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_READ_MARKERS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SET_READ_MARKERS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_set_read_markers(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_THREADS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_THREADS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_threads(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TYPING_NOTICE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TYPING_NOTICE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_typing_notice(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_UNBAN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_UNBAN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_unban(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ABORT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ABORT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_abort(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_EDIT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_EDIT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_edit(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_IS_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_IS_ENABLED
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_is_enabled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_LISTEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_LISTEN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_listen(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_PENDING
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_PENDING
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_pending(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_REPORT_UPLOAD_PROGRESS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_REPORT_UPLOAD_PROGRESS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_report_upload_progress(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_RESPAWN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_RESPAWN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_respawn(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ROOM_IS_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ROOM_IS_ENABLED
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_room_is_enabled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ROOM_SET_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_ROOM_SET_ENABLED
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_room_set_enabled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SEND
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SEND
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_send(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SEND_ATTACHMENT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SEND_ATTACHMENT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_send_attachment(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SET_ENABLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_SET_ENABLED
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_set_enabled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_UNWEDGE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SEND_QUEUE_UNWEDGE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_send_queue_unwedge(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_CONFIGURE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_CONFIGURE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_configure(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_HAS_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_HAS_POSITION
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_has_position(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_POSITION
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_position(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_PROBE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_PROBE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_probe(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_RESET_POSITION
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_RESET_POSITION
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_reset_position(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_RUN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_RUN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_run(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_STOP
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_STOP
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_stop(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_SUBSCRIBE_ROOMS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_SYNC_SUBSCRIBE_ROOMS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_sync_subscribe_rooms(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_EXPORT_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_EXPORT_KEYS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_trust_export_keys(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_IMPORT_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_IMPORT_KEYS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_trust_import_keys(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_OWN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_OWN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_trust_own(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_PUBLISH_KEYS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_PUBLISH_KEYS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_trust_publish_keys(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_SIGN_OWN_DEVICE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_TRUST_SIGN_OWN_DEVICE
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_trust_sign_own_device(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_ACCEPT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_ACCEPT
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_accept(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_CANCEL
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_CANCEL
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_cancel(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_CONFIRM
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_CONFIRM
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_confirm(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_LISTEN
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_LISTEN
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_listen(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_REQUEST
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_REQUEST
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_request(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_START_SAS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_CORE_VERIFICATION_START_SAS
+uint16_t uniffi_zigzag_rustcore_checksum_method_core_verification_start_sas(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_RELEASE_WAIT
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_RELEASE_WAIT
+uint16_t uniffi_zigzag_rustcore_checksum_method_release_wait(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_PUSHRULES_EVALUATE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_PUSHRULES_EVALUATE
+uint16_t uniffi_zigzag_rustcore_checksum_method_pushrules_evaluate(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_CONSTRUCTOR_PUSHRULES_NEW
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_CONSTRUCTOR_PUSHRULES_NEW
+uint16_t uniffi_zigzag_rustcore_checksum_constructor_pushrules_new(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_SENDQUEUELISTENER_ON_UPDATE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_SENDQUEUELISTENER_ON_UPDATE
+uint16_t uniffi_zigzag_rustcore_checksum_method_sendqueuelistener_on_update(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_SYNCLISTENER_ON_BATCH
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_SYNCLISTENER_ON_BATCH
+uint16_t uniffi_zigzag_rustcore_checksum_method_synclistener_on_batch(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_REQUEST
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_REQUEST
+uint16_t uniffi_zigzag_rustcore_checksum_method_verificationlistener_on_request(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_READY
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_READY
+uint16_t uniffi_zigzag_rustcore_checksum_method_verificationlistener_on_ready(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_SAS
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_SAS
+uint16_t uniffi_zigzag_rustcore_checksum_method_verificationlistener_on_sas(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_DONE
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_DONE
+uint16_t uniffi_zigzag_rustcore_checksum_method_verificationlistener_on_done(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_CANCELLED
+#define UNIFFI_FFIDEF_UNIFFI_ZIGZAG_RUSTCORE_CHECKSUM_METHOD_VERIFICATIONLISTENER_ON_CANCELLED
+uint16_t uniffi_zigzag_rustcore_checksum_method_verificationlistener_on_cancelled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_UNIFFI_CONTRACT_VERSION
+#define UNIFFI_FFIDEF_FFI_ZIGZAG_RUSTCORE_UNIFFI_CONTRACT_VERSION
+uint32_t ffi_zigzag_rustcore_uniffi_contract_version(void
+    
+);
+#endif
+
+ void zigzag_rustcore_send_queue_cgo_dispatchCallbackInterfaceSendQueueListenerMethod0(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_send_queue_cgo_dispatchCallbackInterfaceSendQueueListenerFree(uint64_t handle);
+uint64_t zigzag_rustcore_send_queue_cgo_dispatchCallbackInterfaceSendQueueListenerClone(uint64_t handle);
+ void zigzag_rustcore_sync_cgo_dispatchCallbackInterfaceSyncListenerMethod0(uint64_t uniffi_handle, RustBuffer batch, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_sync_cgo_dispatchCallbackInterfaceSyncListenerFree(uint64_t handle);
+uint64_t zigzag_rustcore_sync_cgo_dispatchCallbackInterfaceSyncListenerClone(uint64_t handle);
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerMethod0(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerMethod1(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerMethod2(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerMethod3(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerMethod4(uint64_t uniffi_handle, RustBuffer payload_json, void* uniffi_out_return, RustCallStatus* callStatus );
+ void zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerFree(uint64_t handle);
+uint64_t zigzag_rustcore_trust_cgo_dispatchCallbackInterfaceVerificationListenerClone(uint64_t handle);
+
+void rustcore_uniffiFutureContinuationCallback(uint64_t, int8_t);
+void rustcore_uniffiFreeGorutine(uint64_t);
