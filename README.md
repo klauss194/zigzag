@@ -4,8 +4,7 @@
 </h1>
 
 <p align="center">
-  <!-- TODO: one-line tagline -->
-  <em>One-line tagline goes here.</em>
+  <em>The all-in-one virtual office for your team.</em>
 </p>
 
 <p align="center">
@@ -14,7 +13,6 @@
   <a href="https://github.com/klauss194/zigzag/releases/latest"><img alt="Download for macOS" src="https://img.shields.io/badge/macOS-download-000000?style=flat-square&logo=apple&logoColor=white"></a>
   <a href="https://github.com/klauss194/zigzag/releases/latest"><img alt="Download for Linux" src="https://img.shields.io/badge/Linux-download-FCC624?style=flat-square&logo=linux&logoColor=black"></a>
   <a href="https://github.com/klauss194/zigzag/releases/latest"><img alt="Download for Android" src="https://img.shields.io/badge/Android-download-3DDC84?style=flat-square&logo=android&logoColor=white"></a>
-  <a href="https://github.com/klauss194/zigzag/releases/latest"><img alt="Download for iOS" src="https://img.shields.io/badge/iOS-download-000000?style=flat-square&logo=apple&logoColor=white"></a>
   <a href="https://github.com/klauss194/zigzag/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/klauss194/zigzag/total?style=flat-square"></a>
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-PolyForm-blue?style=flat-square"></a>
 </p>
@@ -26,7 +24,11 @@
 
 ## What is Zigzag?
 
-<!-- TODO: 2–3 sentences explaining the product and who it is for -->
+Zigzag is an all-in-one virtual office for your team. Chat, calls, projects, documents, Git repositories, shared terminals and an AI agent all live in one app, so your team can work in the same place it talks.
+
+Each room keeps a conversation together with its messages, files, calls and tasks, and rooms are grouped into projects. Your code is hosted inside the app, and every commit shows up in the conversation. Every room has its own AI agent that can catch you up and do anything you can do in Zigzag.
+
+Zigzag is built on [Matrix](https://matrix.org), an open standard, so you can run your own server or use Zigzag's. Teams on different servers can still work together. Zigzag runs on Linux, macOS, Windows and Android.
 
 ## Features
 
@@ -65,13 +67,10 @@ Zigzag runs on desktop and mobile.
 | macOS | [Latest release](https://github.com/klauss194/zigzag/releases/latest) |
 | Linux | [Latest release](https://github.com/klauss194/zigzag/releases/latest) |
 | Android | [Latest release](https://github.com/klauss194/zigzag/releases/latest) |
-| iOS | [Latest release](https://github.com/klauss194/zigzag/releases/latest) |
 
 <!-- TODO: once release asset names are stable, link directly:
      https://github.com/klauss194/zigzag/releases/latest/download/<asset-name>
-     TODO: if mobile ships through Google Play / App Store / TestFlight, replace the Android and iOS links (table and badges) -->
-
-<p align="center"><img src=".github/readme-assets/mobile.png" alt="Zigzag on mobile" width="260"></p>
+     TODO: if mobile ships through Google Play, replace the Android links (table and badges) -->
 
 ## License
 
